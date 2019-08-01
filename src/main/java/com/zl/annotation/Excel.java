@@ -18,4 +18,31 @@ public @interface Excel {
      */
     public String name();
 
+    //后缀格式
+    public String suffix() default "";
+
+    //数字格式化，参数是Pattern,使用的对象是DecimalFormat
+    public String numFormat();
+
+    //导出时间格式化 以这个是否为空来判断是否需要格式化日期
+    String exportDateFormat() default "";
+
+    //导入时间格式化
+    String importDateFormat() default "";
+    //高度，导出时在excel中每个列的高度 单位为字符，一个汉字=2个字符
+    double height() default 10.0D;
+    //宽度
+    double width() default 10.0D;
+    //顺序
+    int orderNum() default 0;
+    //是否需要隐藏该列
+    boolean isColumnHidden() default false;
+    //枚举导出使用的字段
+    String enumExportField() default "";
+
+    String enumImportMethod() default "";
+
+    //1:文本
+    public int type() default 1;
+
 }
