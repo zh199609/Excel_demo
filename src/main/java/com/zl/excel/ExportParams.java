@@ -1,6 +1,8 @@
 package com.zl.excel;
 
 import com.zl.enums.ExcelType;
+import com.zl.excel.style.ExcelExportStylerDefaultImpl;
+import org.apache.poi.hssf.util.HSSFColor;
 
 /**
  * @ClassName: ExportParams
@@ -49,6 +51,26 @@ public class ExportParams {
      */
     public short height = 0;
 
+    /**
+     * 是否固定表头
+     */
+    private boolean isFixedTitle = true;
+
+    /**
+     * 表头颜色
+     */
+    private short titleColor = HSSFColor.HSSFColorPredefined.WHITE.getIndex();
+    /**
+     * 属性说明行的颜色 例如:HSSFColor.SKY_BLUE.index 默认
+     */
+    private short headerColor = HSSFColor.HSSFColorPredefined.SKY_BLUE.getIndex();
+
+    /**
+     * Excel 导出style
+     */
+    private Class<?> style = ExcelExportStylerDefaultImpl.class;
+
+
     public ExportParams(String title, String sheetName) {
         this.title = title;
         this.sheetName = sheetName;
@@ -70,7 +92,7 @@ public class ExportParams {
     }
 
     public short getTitleHeight() {
-        return titleHeight;
+        return (short) (titleHeight * 50);
     }
 
     public void setTitleHeight(short titleHeight) {
@@ -93,8 +115,8 @@ public class ExportParams {
         this.type = type;
     }
 
-    public double getHeaderHeight() {
-        return headerHeight;
+    public short getHeaderHeight() {
+        return (short) (titleHeight * 50);
     }
 
     public void setHeaderHeight(double headerHeight) {
@@ -115,5 +137,13 @@ public class ExportParams {
 
     public void setHeight(short height) {
         this.height = height;
+    }
+
+    public boolean isFixedTitle() {
+        return isFixedTitle;
+    }
+
+    public void setFixedTitle(boolean fixedTitle) {
+        isFixedTitle = fixedTitle;
     }
 }

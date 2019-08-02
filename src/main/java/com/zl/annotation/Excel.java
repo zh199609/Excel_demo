@@ -22,7 +22,7 @@ public @interface Excel {
     public String suffix() default "";
 
     //数字格式化，参数是Pattern,使用的对象是DecimalFormat
-    public String numFormat();
+    public String numFormat() default "";
 
     //导出时间格式化 以这个是否为空来判断是否需要格式化日期
     String exportDateFormat() default "";
@@ -44,5 +44,7 @@ public @interface Excel {
 
     //1:文本
     public int type() default 1;
+    //支持换行\n  WrapStyle
+    public boolean isWrap() default true;
 
 }

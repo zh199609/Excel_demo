@@ -49,6 +49,11 @@ public class ExcelExportEntity implements Comparable<ExcelExportEntity> {
      */
     private Method method;
 
+    /**
+     * 是否支持换行
+     */
+    private boolean isWrap;
+
 
     @Override
     public int compareTo(ExcelExportEntity o) {
@@ -149,5 +154,13 @@ public class ExcelExportEntity implements Comparable<ExcelExportEntity> {
 
     public void setExportDateFormat(String exportDateFormat) {
         this.exportDateFormat = exportDateFormat;
+    }
+
+    public boolean isWrap() {
+        return isWrap;
+    }
+
+    public void setWrap(boolean wrap) {
+        isWrap = wrap;
     }
 }

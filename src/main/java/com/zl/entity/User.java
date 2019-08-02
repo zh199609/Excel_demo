@@ -1,5 +1,7 @@
 package com.zl.entity;
 
+import com.zl.annotation.Excel;
+
 import java.io.Serializable;
 
 /**
@@ -8,9 +10,19 @@ import java.io.Serializable;
 public class User implements Serializable {
 
     private static final long serialVersionUID = 5131566962871242335L;
-    private Integer id;
 
+    @Excel(name = "编号")
+    private Integer id;
+    @Excel(name="姓名")
     private String name;
+
+    public User() {
+    }
+
+    public User(Integer id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 
     public Integer getId() {
         return id;
