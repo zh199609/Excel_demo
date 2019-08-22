@@ -52,7 +52,7 @@ public class ExcelExportEntity implements Comparable<ExcelExportEntity> {
     /**
      * 是否支持换行
      */
-    private boolean isWrap;
+    private boolean isWrap = true;
 
 
     @Override

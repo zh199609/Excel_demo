@@ -28,6 +28,11 @@ public class ExcelExportStylerDefaultImpl extends AbstractExcelExportStyler impl
         return cellStyle;
     }
 
+    /**
+     *  该color参数可用作与颜色的设置，需自己实现该接口
+     * @param color
+     * @return
+     */
     @Override
     public CellStyle getTitleStyle(short color) {
         CellStyle cellStyle = workbook.createCellStyle();

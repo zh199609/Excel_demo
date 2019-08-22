@@ -146,4 +146,28 @@ public class ExportParams {
     public void setFixedTitle(boolean fixedTitle) {
         isFixedTitle = fixedTitle;
     }
+
+    public short getTitleColor() {
+        return titleColor;
+    }
+
+    public void setTitleColor(short titleColor) {
+        this.titleColor = titleColor;
+    }
+
+    public short getHeaderColor() {
+        return headerColor;
+    }
+
+    public void setHeaderColor(short headerColor) {
+        this.headerColor = headerColor;
+    }
+
+    public Class<?> getStyle() {
+        return style;
+    }
+
+    public void setStyle(Class<?> style) {
+        this.style = style;
+    }
 }

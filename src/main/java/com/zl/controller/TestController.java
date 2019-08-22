@@ -3,6 +3,7 @@ package com.zl.controller;
 import com.zl.entity.User;
 import com.zl.excel.ExcelExportUtil;
 import com.zl.excel.ExportParams;
+import com.zl.excel.style.ExcelExportStylerCustomImpl;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +18,6 @@ import java.util.List;
 public class TestController {
 
 
-
     @GetMapping(value = "/test")
     public String test(HttpServletResponse response, HttpServletRequest request) {
 
@@ -29,6 +29,7 @@ public class TestController {
 
 
         ExportParams exportParams = new ExportParams("计算机一班", "名单");
+        exportParams.setStyle(ExcelExportStylerCustomImpl.class);
         Workbook workbook = ExcelExportUtil.exportExcel(exportParams, User.class, list);
         ExcelUtils.exportExcel(workbook, "名单列表.xlsx", response, request);
         return "SUCCESS";

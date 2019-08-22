@@ -21,7 +21,6 @@ public interface IExcelExportStyler {
     /**
      * 获取样式方法
      */
-    @Deprecated
     public CellStyle getStyles(boolean parity, ExcelExportEntity entity);
 
     /**
