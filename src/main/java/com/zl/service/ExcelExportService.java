@@ -23,6 +23,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import org.hibernate.validator.internal.metadata.aggregated.rule.OverridingMethodMustNotAlterParameterConstraints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +47,10 @@ import java.util.Map;
  * @return
  **/
 public class ExcelExportService {
+
+
+    private final Logger logger = LoggerFactory.getLogger(ExcelExportService.class);
+
     //当前索引
     private int currentIndex = 0;
     //workbook类型
@@ -61,28 +66,29 @@ public class ExcelExportService {
      * 导出的主方法，由此进一步展开workbook
      *
      * @param workbook
-     * @param entity
+     * @param exportParams
      * @param pojoClass
      * @param dataSet
      */
-    public void createSheet(Workbook workbook, ExportParams entity, Class<?> pojoClass,
+    public void createSheet(Workbook workbook, ExportParams exportParams, Class<?> pojoClass,
                             Collection<?> dataSet) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Excel export start ,class is {}", pojoClass);
             LOGGER.debug("Excel version is {}",
-                    entity.getType().equals(ExcelType.HSSF) ? "03" : "07");
+                    exportParams.getType().equals(ExcelType.HSSF) ? "03" : "07");
         }
-        if (workbook == null || entity == null || pojoClass == null || dataSet == null) {
+        if (workbook == null || exportParams == null || pojoClass == null || dataSet == null) {
             throw new ExcelExportException(ExcelExportEnum.PARAMETER_ERROR);
         }
         try {
-            List<ExcelExportEntity> excelParams = new ArrayList<>();
+            List<ExcelExportEntity> excelExportEntities = new ArrayList<>();
             // 得到所有字段
             Field[] fileds = PublicUtils.getClassFields(pojoClass);
-            getAllExcelField(fileds, excelParams, pojoClass,
+            //级联暂未支持 List上不支持写@Excel
+            getAllExcelField(fileds, excelExportEntities, pojoClass,
                     null);
             //获取所有参数后
-            createSheetForMap(workbook, entity, excelParams, dataSet);
+            createSheetForMap(workbook, exportParams, excelExportEntities, dataSet);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             throw new ExcelExportException(ExcelExportEnum.EXPORT_ERROR, e.getCause());
@@ -91,24 +97,24 @@ public class ExcelExportService {
 
     /**
      * @param workbook
-     * @param entity
+     * @param exportParams
      * @param excelParams
      * @param dataSet
      */
-    private void createSheetForMap(Workbook workbook, ExportParams entity, List<ExcelExportEntity> excelParams, Collection<?> dataSet) {
-        if (workbook == null || entity == null || excelParams == null || dataSet == null) {
+    private void createSheetForMap(Workbook workbook, ExportParams exportParams, List<ExcelExportEntity> excelParams, Collection<?> dataSet) {
+        if (workbook == null || exportParams == null || excelParams == null || dataSet == null) {
             throw new ExcelExportException(ExcelExportEnum.PARAMETER_ERROR);
         }
         try {
-            type = entity.getType();
+            type = exportParams.getType();
             Sheet sheet = null;
             try {
-                sheet = workbook.createSheet(entity.getSheetName());
+                sheet = workbook.createSheet(exportParams.getSheetName());
             } catch (Exception e) {
                 e.printStackTrace();
                 sheet = workbook.createSheet();
             }
-            insertDataToSheet(workbook, entity, excelParams, dataSet, sheet);
+            insertDataToSheet(workbook, exportParams, excelParams, dataSet, sheet);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -201,7 +207,7 @@ public class ExcelExportService {
 
 
     /**
-     * 获取cell要填入的值
+     * 获取cell要填入的值,格式化
      *
      * @param entity
      * @param obj
@@ -211,6 +217,7 @@ public class ExcelExportService {
     public Object getCellValue(ExcelExportEntity entity, Object obj) throws Exception {
         Object value;
         value = entity.getMethod().invoke(obj, new Object[]{});
+        //导出日期格式化
         if (StringUtils.isNotEmpty(entity.getExportDateFormat())) {
             value = dateFormatValue(value, entity);
         }
@@ -237,22 +244,21 @@ public class ExcelExportService {
      * 获取导出对象属性的注解信息
      *
      * @param fileds
-     * @param excelParams
+     * @param entities
      * @param pojoClass
      * @param getMethods
      */
-    private void getAllExcelField(Field[] fileds, List<ExcelExportEntity> excelParams, Class<?> pojoClass, List<Method> getMethods) {
+    private void getAllExcelField(Field[] fileds, List<ExcelExportEntity> entities, Class<?> pojoClass, List<Method> getMethods) {
         ExcelExportEntity excelEntity;
         for (Field filed : fileds) {
             if (filed.getAnnotation(Excel.class) != null) {
                 Excel excel = filed.getAnnotation(Excel.class);
                 String name = excel.name();
                 if (StringUtils.isNotBlank(name)) {
-                    excelParams.add(createExcelExportEntity(filed, pojoClass, getMethods));
+                    entities.add(createExcelExportEntity(filed, pojoClass, getMethods));
                 }
             } else {
-                //throw new RuntimeException("getAllExcelField方法异常了！");
-                System.out.println(filed.getName() + "没有获取到@Excel注解");
+                logger.info(filed.getName()+"未获取到@Excel注解");
             }
         }
     }
@@ -479,7 +485,16 @@ public class ExcelExportService {
      */
     private Object dateFormatValue(Object value, ExcelExportEntity entity) throws Exception {
         Date temp = null;
-        if (value instanceof String && StringUtils.isNoneEmpty(value.toString())) {
+        if (value == null){
+            return null;
+        }
+        if (value instanceof Date){
+            LOGGER.error("data want date format ,but is not date, value is:" + value);
+            return null;
+        }
+
+       /* if (value instanceof String && StringUtils.isNoneEmpty(value.toString())) {
+            //format每次都需要创建
             SimpleDateFormat format = new SimpleDateFormat(entity.getExportDateFormat());
             temp = format.parse(value.toString());
         } else if (value instanceof Date) {
@@ -494,7 +509,7 @@ public class ExcelExportService {
         if (temp != null) {
             SimpleDateFormat format = new SimpleDateFormat(entity.getExportDateFormat());
             value = format.format(temp);
-        }
+        }*/
         return value;
     }
 

@@ -34,7 +34,6 @@ public abstract class AbstractExcelExportStyler implements IExcelExportStyler {
             return stringNoneWrapStyle;
         }
         return stringNoneStyle;
-
     }
 
     @Override

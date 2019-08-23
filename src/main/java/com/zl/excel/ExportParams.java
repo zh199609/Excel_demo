@@ -3,10 +3,12 @@ package com.zl.excel;
 import com.zl.enums.ExcelType;
 import com.zl.excel.style.ExcelExportStylerDefaultImpl;
 import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.Color;
+import org.apache.poi.xssf.usermodel.XSSFColor;
 
 /**
  * @ClassName: ExportParams
- * @Description: TODO 目前仅支持但sheet，导出参数设置
+ * @Description: TODO 目前仅支持单sheet，导出参数设置
  * @Author: zl
  * @Date: 2019/8/1 21:29
  * @Version: 1.0
@@ -31,7 +33,7 @@ public class ExportParams {
 
 
     /**
-     * Excel 导出版本
+     * Excel 导出版本 默认XSSF
      */
     private ExcelType type = ExcelType.XSSF;
 
@@ -57,13 +59,14 @@ public class ExportParams {
     private boolean isFixedTitle = true;
 
     /**
-     * 表头颜色
+     * 表头
      */
-    private short titleColor = HSSFColor.HSSFColorPredefined.WHITE.getIndex();
+    private short titleColor = HSSFColor.HSSFColorPredefined.RED.getIndex();
+//    private short titleColo1r = XSSFColor.toXSSFColor(XSSFColor.)
     /**
      * 属性说明行的颜色 例如:HSSFColor.SKY_BLUE.index 默认
      */
-    private short headerColor = HSSFColor.HSSFColorPredefined.SKY_BLUE.getIndex();
+    private short headerColor = HSSFColor.HSSFColorPredefined.YELLOW.getIndex();
 
     /**
      * Excel 导出style
@@ -170,4 +173,5 @@ public class ExportParams {
     public void setStyle(Class<?> style) {
         this.style = style;
     }
+
 }
