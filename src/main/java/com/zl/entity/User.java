@@ -3,6 +3,7 @@ package com.zl.entity;
 import com.zl.annotation.Excel;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -12,15 +13,18 @@ public class User implements Serializable {
 
     private static final long serialVersionUID = 5131566962871242335L;
 
-    @Excel(name = "编号")
+    @Excel(name = "编号", isColumnHidden = true)
     private Integer id;
     @Excel(name = "姓名")
     private String name;
-
     @Excel(name = "状态")//枚举重写toString
     private Status status;
-    @Excel(name = "出生年月",exportDateFormat = "yyyy-MM-dd")
+    @Excel(name = "出生年月", exportDateFormat = "yyyy-MM-dd")
     private Date birthday;
+    @Excel(name = "更新日期", exportDateFormat = "yyyy-MM-dd HH:mm:ss", orderNum = 2)
+    private Date updateTime;
+    @Excel(name = "价格", numFormat = "#0.00", orderNum = 1)
+    private BigDecimal price;
 
     private String pwd;
 
@@ -62,7 +66,31 @@ public class User implements Serializable {
         return birthday;
     }
 
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public String getPwd() {
+        return pwd;
+    }
+
+    public void setPwd(String pwd) {
+        this.pwd = pwd;
+    }
+
     public void setBirthday(Date birthday) {
         this.birthday = birthday;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
 }

@@ -7,6 +7,7 @@ import com.zl.excel.ExcelExportEntity;
 import com.zl.excel.ExcelExportException;
 import com.zl.excel.ExportParams;
 import com.zl.excel.style.IExcelExportStyler;
+import com.zl.util.ConcurrentDateUtil;
 import com.zl.util.PoiMergeCellUtil;
 import com.zl.util.PoiReflectorUtil;
 import com.zl.util.PublicUtils;
@@ -177,7 +178,7 @@ public class ExcelExportService {
                 entity = excelParams.get(k);
                 Object cellValue = getCellValue(entity, t);
                 //默认使用文本进行
-                createStringCell(row, cellNum++, cellValue.toString(), getStyles(true,entity),entity);
+                createStringCell(row, cellNum++, cellValue.toString(), getStyles(true, entity), entity);
             }
             return new int[]{maxHeight, cellNum};
         } catch (Exception e) {
@@ -198,7 +199,7 @@ public class ExcelExportService {
      */
     private int createIndexCell(Row row, int index, ExcelExportEntity excelExportEntity) {
         if (excelExportEntity.getName() != null && "序号".equals(excelExportEntity.getName())) {
-            createStringCell(row, 0, currentIndex + "", null,null);
+            createStringCell(row, 0, currentIndex + "", null, null);
             currentIndex = currentIndex + 1;
             return 1;
         }
@@ -258,7 +259,7 @@ public class ExcelExportService {
                     entities.add(createExcelExportEntity(filed, pojoClass, getMethods));
                 }
             } else {
-                logger.info(filed.getName()+"未获取到@Excel注解");
+                logger.debug(filed.getName() + "未获取到@Excel注解");
             }
         }
     }
@@ -362,7 +363,7 @@ public class ExcelExportService {
         createStringCell(row, 0, entity.getTitle(), headerStyle, null);
         // cellIndex=0 为表头内容 cellIndex>0 为空字符串 用于合并单元格
         for (int i = 1; i < fieldLength; i++) {
-            createStringCell(row, i, "", headerStyle,null);
+            createStringCell(row, i, "", headerStyle, null);
         }
         //merge 标题行
         PoiMergeCellUtil.addMergedRegion(sheet, 0, 0, 0, fieldLength);
@@ -414,7 +415,7 @@ public class ExcelExportService {
         for (int i = 0, exportFieldSize = excelParams.size(); i < exportFieldSize; i++) {
             ExcelExportEntity excelExportEntity = excelParams.get(i);
             if (StringUtils.isNotBlank(excelExportEntity.getName())) {
-                createStringCell(row, cellIndex, excelExportEntity.getName(), getStyles(true,excelExportEntity),null);
+                createStringCell(row, cellIndex, excelExportEntity.getName(), getStyles(true, excelExportEntity), null);
             }
             cellIndex++;
         }
@@ -485,14 +486,15 @@ public class ExcelExportService {
      */
     private Object dateFormatValue(Object value, ExcelExportEntity entity) throws Exception {
         Date temp = null;
-        if (value == null){
+        if (value == null) {
             return null;
         }
-        if (value instanceof Date){
+        if (!(value instanceof Date)) {
             LOGGER.error("data want date format ,but is not date, value is:" + value);
             return null;
         }
-
+        temp = (Date) value;
+        return ConcurrentDateUtil.formatDate(temp, entity.getExportDateFormat());
        /* if (value instanceof String && StringUtils.isNoneEmpty(value.toString())) {
             //format每次都需要创建
             SimpleDateFormat format = new SimpleDateFormat(entity.getExportDateFormat());
@@ -509,8 +511,8 @@ public class ExcelExportService {
         if (temp != null) {
             SimpleDateFormat format = new SimpleDateFormat(entity.getExportDateFormat());
             value = format.format(temp);
-        }*/
-        return value;
+        }
+        return value;*/
     }
 
     /**

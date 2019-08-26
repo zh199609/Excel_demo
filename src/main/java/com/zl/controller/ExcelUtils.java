@@ -85,15 +85,19 @@ public class ExcelUtils {
 
     }
 
-    private static void downLoad(Workbook workbook, HttpServletResponse response) {
+    private static void downLoad(Workbook workbook, HttpServletResponse response) throws IOException {
+        ServletOutputStream out = response.getOutputStream();
         try {
-            ServletOutputStream out = response.getOutputStream();
             workbook.write(out);
-            out.flush();
-            out.close();
-            workbook.close();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            if (out != null) {
+                out.close();
+            }
+            if (workbook != null) {
+                workbook.close();
+            }
         }
     }
 

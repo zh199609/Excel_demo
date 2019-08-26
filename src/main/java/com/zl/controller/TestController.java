@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 @RestController
 public class TestController {
@@ -26,10 +28,14 @@ public class TestController {
     public String test(HttpServletResponse response, HttpServletRequest request) {
 
         List<User> list = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
+        Random random = new Random();
+        for (int i = 0; i < 100; i++) {
             User user = new User(i, "用户" + i + "号");
-            user.setStatus(Status.VALID);
-            user.setBirthday(new Date());
+            user.setStatus(i % 2 == 0 ? Status.VALID : Status.INVALID);
+            Date date = new Date();
+            user.setBirthday(date);
+            user.setUpdateTime(date);
+            user.setPrice(new BigDecimal(100 * i * random.nextDouble()));
             list.add(user);
         }
 
@@ -39,11 +45,7 @@ public class TestController {
         Workbook workbook = ExcelExportUtil.exportExcel(exportParams, User.class, list);
         ExcelUtils.exportExcel(workbook, "名单列表.xlsx", response, request);
         return "SUCCESS";
+        //maiqun123a
     }
 
-    public static void main(String[] args) {
-        String format1 = "yyyy-MM-dd";
-        String format2 = "yyyy-MM-dd HH:mm:ss";
-
-    }
 }

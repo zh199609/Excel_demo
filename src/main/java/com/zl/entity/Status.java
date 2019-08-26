@@ -18,7 +18,7 @@ public enum Status {
 
     @Override
     public String toString() {
-        return "自定义状态";
+        return getName();
     }
 
     public String getName() {
