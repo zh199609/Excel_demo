@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * 导入导出注解
+ *
  * @author albertzh
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -29,14 +30,19 @@ public @interface Excel {
 
     //导入时间格式化
     String importDateFormat() default "";
+
     //高度，导出时在excel中每个列的高度 单位为字符，一个汉字=2个字符
     double height() default 10.0D;
+
     //宽度
     double width() default 10.0D;
+
     //顺序
     int orderNum() default 0;
+
     //是否需要隐藏该列
     boolean isColumnHidden() default false;
+
     //枚举导出使用的字段
     String enumExportField() default "";
 
@@ -44,7 +50,14 @@ public @interface Excel {
 
     //1:文本
     public int type() default 1;
+
     //支持换行\n  WrapStyle
     public boolean isWrap() default true;
+
+    //导出字段  默认是
+    boolean isExportField() default true;
+
+    //导入字段  默认是
+    boolean isImportField() default true;
 
 }

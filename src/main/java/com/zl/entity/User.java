@@ -5,6 +5,7 @@ import com.zl.annotation.Excel;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author albertzh
@@ -41,7 +42,6 @@ public class User implements Serializable {
         return id;
     }
 
-
     public void setId(Integer id) {
         this.id = id;
     }
@@ -66,6 +66,10 @@ public class User implements Serializable {
         return birthday;
     }
 
+    public void setBirthday(Date birthday) {
+        this.birthday = birthday;
+    }
+
     public Date getUpdateTime() {
         return updateTime;
     }
@@ -74,23 +78,19 @@ public class User implements Serializable {
         this.updateTime = updateTime;
     }
 
-    public String getPwd() {
-        return pwd;
-    }
-
-    public void setPwd(String pwd) {
-        this.pwd = pwd;
-    }
-
-    public void setBirthday(Date birthday) {
-        this.birthday = birthday;
-    }
-
     public BigDecimal getPrice() {
         return price;
     }
 
     public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+
+    public String getPwd() {
+        return pwd;
+    }
+
+    public void setPwd(String pwd) {
+        this.pwd = pwd;
     }
 }
