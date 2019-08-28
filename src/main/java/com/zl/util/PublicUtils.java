@@ -14,6 +14,7 @@ import java.util.Map;
 
 public class PublicUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(PublicUtils.class);
+
     /**
      * 获取class的 包括父类的 属性
      *
@@ -66,22 +67,13 @@ public class PublicUtils {
     public static Object createObject(Class<?> clazz) {
         Object obj = null;
         try {
-            if (clazz.equals(Map.class)) {
-                return new LinkedHashMap<String,Object>();
-            }
             obj = clazz.newInstance();
-            Field[] fields = getClassFields(clazz);
-            for (Field field : fields) {
-
-            }
-
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             throw new RuntimeException("创建对象异常");
         }
         return obj;
     }
-
 
 
     public static void main(String[] args) {

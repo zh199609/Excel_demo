@@ -24,13 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 导入服务
@@ -38,6 +32,12 @@ import java.util.Map;
 public class ExcelImportService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExcelImportService.class);
+
+    private CellValueService cellValueService;
+
+    public ExcelImportService() {
+        this.cellValueService = new CellValueService();
+    }
 
     public ImportResult importExcelBase(InputStream inputStream, Class<?> clazz, ImportParams importParams) {
         LOGGER.debug("Excel import start,ClassType is {}", clazz);
@@ -74,6 +74,7 @@ public class ExcelImportService {
 
 
     public <T> List<T> importExcel(Collection<T> result, Sheet sheet, ImportParams importParams, Class<?> pojoClass, ImportResult importResult) {
+        List collection = new ArrayList();
         Field[] classFields = PublicUtils.getClassFields(pojoClass);
         Map<String, ExcelImportEntity> excelParams = new HashMap<>();
         //获取导入字段
@@ -83,6 +84,7 @@ public class ExcelImportService {
             rowIterator.next();
         }
         Map<Integer, String> titleMap = getTitleMap(rowIterator, importParams, excelParams);
+        //模板校验错误直接返回
         boolean titleVerify = verifyExcelTemplate(importParams, titleMap, excelParams, importResult);
         if (titleVerify) {
             return null;
@@ -91,14 +93,25 @@ public class ExcelImportService {
         for (int i = 0; i < importParams.getDataRow(); i++) {
             rowIterator.next();
         }
+        Map<String, Object> valMap;
         //数据开始读取
-        while(rowIterator.hasNext()){
+        while (rowIterator.hasNext()) {
             Row row = rowIterator.next();
-            //
+            //数据对象创建
             Object object = PublicUtils.createObject(pojoClass);
+            try {
+                Set<Integer> titleIndex = titleMap.keySet();
+                for (Integer index : titleIndex) {
+                    Cell cell = row.getCell(index);
+                    String titleName = titleMap.get(index);
+                    Object value = cellValueService.getValue(object, cell, excelParams, titleName);
+
+                }
+            } catch (Exception e) {
+
+            }
+
         }
-
-
 
 
         return null;
@@ -205,11 +218,12 @@ public class ExcelImportService {
     public boolean verifyExcelTemplate(ImportParams importParams, Map<Integer, String> titleMap, Map<String, ExcelImportEntity> excelParams, ImportResult importResult) {
         String[] importFields = importParams.getImportFields();
         boolean verifyResult = false;
+        importResult.setVerfiyFail(true);
         if (importParams.getImportFields() != null && importParams.isCheckOrder()) {
             //序列的校验
             if (importFields.length != titleMap.size()) {
                 LOGGER.error("Excel导入表头不一致");
-                importResult.getVerifyMsg().add(new ExcelVerifyHandlerResult(false, "Excel导入模板错误"));
+                importResult.getVerifyMsg().put(0, "Excel导入模板错误");
                 verifyResult = false;
                 return verifyResult;
             }
@@ -218,7 +232,7 @@ public class ExcelImportService {
                 if (!StringUtils.equals(s, importFields[i++])) {
                     LOGGER.error("Excel导入表头序列不一致");
                     verifyResult = false;
-                    importResult.getVerifyMsg().add(new ExcelVerifyHandlerResult(false, "Excel导入模板错误"));
+                    importResult.getVerifyMsg().put(0, "Excel导入模板错误");
                     return verifyResult;
                 }
             }
@@ -227,17 +241,18 @@ public class ExcelImportService {
         if (titleMap.size() != excelParams.size()) {
             LOGGER.error("Excel导入表头数量不一致");
             verifyResult = false;
-            importResult.getVerifyMsg().add(new ExcelVerifyHandlerResult(false, "Excel导入模板错误"));
+            importResult.getVerifyMsg().put(0, "Excel导入模板错误");
             return verifyResult;
         }
         for (String titleName : titleMap.values()) {
             if (!excelParams.containsKey(titleName)) {
                 LOGGER.error("Excel导入表头内容不一致");
                 verifyResult = false;
-                importResult.getVerifyMsg().add(new ExcelVerifyHandlerResult(false, "Excel导入模板错误"));
+                importResult.getVerifyMsg().put(0, "Excel导入模板错误");
             }
         }
-
+        importResult.setVerfiyFail(false);
         return verifyResult;
     }
+
 }

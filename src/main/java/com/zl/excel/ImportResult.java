@@ -4,7 +4,9 @@ import com.zl.excel.verify.ExcelVerifyHandlerResult;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 导入结果返回
@@ -32,9 +34,9 @@ public class ImportResult<T> {
      */
     private int importNum;
     /**
-     * 校验结果信息  错误按行
+     * 校验结果信息  错误按行  key为行号，value为该行的错误数据
      */
-    private List<ExcelVerifyHandlerResult> verifyMsg = new ArrayList<>();
+    private Map<Integer, StringBuilder> verifyMsg = new LinkedHashMap<>();
 
 
     public List<T> getList() {
@@ -77,11 +79,11 @@ public class ImportResult<T> {
         this.importNum = importNum;
     }
 
-    public List<ExcelVerifyHandlerResult> getVerifyMsg() {
+    public Map<Integer, StringBuilder> getVerifyMsg() {
         return verifyMsg;
     }
 
-    public void setVerifyMsg(List<ExcelVerifyHandlerResult> verifyMsg) {
+    public void setVerifyMsg(Map<Integer, StringBuilder> verifyMsg) {
         this.verifyMsg = verifyMsg;
     }
 }
