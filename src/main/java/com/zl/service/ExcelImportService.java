@@ -105,7 +105,7 @@ public class ExcelImportService {
                 for (Integer index : titleIndex) {
                     Cell cell = row.getCell(index);
                     String titleName = titleMap.get(index);
-                    Object value = cellValueService.getValue(object, cell, excelParams, titleName,errorMsg);
+                    Object value = cellValueService.getValue(object, cell, excelParams, titleName, errorMsg);
 
                 }
             } catch (Exception e) {

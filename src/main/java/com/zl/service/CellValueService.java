@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -93,7 +94,7 @@ public class CellValueService {
         classFullName = genericParameterTypes[0].toString();
         clazz = (Class) genericParameterTypes[0];
         Object result = getCellValue(classFullName, cell, entity);
-        getValueByType(classFullName, result, entity, titleName, errorMsg);
+        getValueByType(classFullName, result, clazz, titleName, errorMsg);
         return getCellValue(classFullName, cell, entity);
     }
 
@@ -108,7 +109,7 @@ public class CellValueService {
      * @param errorMsg
      * @return : void
      */
-    private Object getValueByType(String classFullName, Object result, ExcelImportEntity entity, String titleName, StringBuilder errorMsg) {
+    private Object getValueByType(String classFullName, Object result, Class clazz, String titleName, StringBuilder errorMsg) {
         try {
             if (result == null || StringUtils.isBlank(result.toString())) {
                 return null;
@@ -122,6 +123,23 @@ public class CellValueService {
             if ("class java.util.Double".equals(classFullName) || "double".equals(classFullName)) {
                 return Double.valueOf(String.valueOf(result));
             }
+            if ("class java.lang.Float".equals(classFullName) || "float".equals(classFullName)) {
+                return Float.valueOf(String.valueOf(result));
+            }
+            if ("class java.lang.Long".equals(classFullName) || "long".equals(classFullName)) {
+                return Long.valueOf(String.valueOf(result));
+            }
+            if ("class java.lang.Integer".equals(classFullName) || "int".equals(classFullName)) {
+                return Integer.valueOf(String.valueOf(result));
+            }
+            if ("class java.math.BigDecimal".equals(classFullName)) {
+                return new BigDecimal(String.valueOf(result));
+            }
+            if ("class java.lang.String".equals(classFullName)) {
+                //如果Excel中读取的不是String
+                return String.valueOf(result);
+            }
+            if ()
             //TODO:其他类型 添加错误MSG
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
