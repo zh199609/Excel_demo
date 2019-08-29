@@ -1,6 +1,7 @@
 package com.zl.service;
 
 import com.sun.org.apache.xpath.internal.operations.Bool;
+import com.zl.entity.User;
 import com.zl.excel.ExcelImportEntity;
 import jdk.internal.org.objectweb.asm.signature.SignatureWriter;
 import org.apache.commons.lang3.StringUtils;
@@ -10,6 +11,9 @@ import org.apache.poi.ss.usermodel.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -29,12 +33,20 @@ public class CellValueService {
     private List<String> handlerList = null;
 
 
-    private Object getCellValue(Cell cell, ExcelImportEntity entity) {
+    private Object getCellValue(String classFullName, Cell cell, ExcelImportEntity entity) {
         if (cell == null) {
             return "";
         }
         Object result = null;
-        if (CellType.NUMERIC == cell.getCellType() && DateUtil.isCellDateFormatted(cell)) {
+        if ("class java.util.Date".equals(classFullName)) {
+            if (CellType.NUMERIC == cell.getCellType() && DateUtil.isCellDateFormatted(cell)) {
+                result = DateUtil.getJavaDate(cell.getNumericCellValue());
+            } else {
+                cell.setCellType(CellType.STRING);
+                result = getDateData(entity, cell.getStringCellValue());
+            }
+
+        } else if (CellType.NUMERIC == cell.getCellType() && DateUtil.isCellDateFormatted(cell)) {
             result = DateUtil.getJavaDate(cell.getNumericCellValue());
         } else {
             switch (cell.getCellType()) {
@@ -71,9 +83,50 @@ public class CellValueService {
      * @Param [object, cell, entityMap, titleName]
      **/
     public Object getValue(Object object, Cell cell,
-                           Map<String, ExcelImportEntity> entityMap, String titleName) {
+                           Map<String, ExcelImportEntity> entityMap, String titleName, StringBuilder errorMsg) {
         ExcelImportEntity entity = entityMap.get(titleName);
-        return getCellValue(cell, entity);
+        String classFullName = "class java.lang.Object";
+        Class clazz = null;
+        Method method = entity.getMethod();
+        Type[] genericParameterTypes = method.getGenericParameterTypes();
+        //属性字段的返回类型
+        classFullName = genericParameterTypes[0].toString();
+        clazz = (Class) genericParameterTypes[0];
+        Object result = getCellValue(classFullName, cell, entity);
+        getValueByType(classFullName, result, entity, titleName, errorMsg);
+        return getCellValue(classFullName, cell, entity);
+    }
+
+    /**
+     * 功能描述:
+     * 〈根据类型获取cell的值 包含校验@Excel的简单校验〉
+     *
+     * @param classFullName
+     * @param result
+     * @param entity
+     * @param titleName
+     * @param errorMsg
+     * @return : void
+     */
+    private Object getValueByType(String classFullName, Object result, ExcelImportEntity entity, String titleName, StringBuilder errorMsg) {
+        try {
+            if (result == null || StringUtils.isBlank(result.toString())) {
+                return null;
+            }
+            if ("class java.util.Date".equals(classFullName)) {
+                return result;
+            }
+            if ("class java.util.Boolean".equals(classFullName) || "boolean".equals(classFullName)) {
+                return Boolean.valueOf(String.valueOf(result));
+            }
+            if ("class java.util.Double".equals(classFullName) || "double".equals(classFullName)) {
+                return Double.valueOf(String.valueOf(result));
+            }
+            //TODO:其他类型 添加错误MSG
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
+        return null;
     }
 
     private String formateDate(ExcelImportEntity entity, Date value) {
@@ -94,6 +147,37 @@ public class CellValueService {
             result = value;
         }
         return result;
+    }
+
+
+    /**
+     * 功能描述:
+     * 〈获取日期类型〉
+     *
+     * @param entity
+     * @param value
+     * @return : java.util.Date
+     */
+    private Date getDateData(ExcelImportEntity entity, String value) {
+        if (StringUtils.isNotEmpty(entity.getImportDateFormat()) && StringUtils.isNotEmpty(value)) {
+            //TODO 优化
+            SimpleDateFormat format = new SimpleDateFormat(entity.getImportDateFormat());
+            try {
+                return format.parse(value);
+            } catch (ParseException e) {
+                LOGGER.error("时间格式化失败,格式化:{},值:{}", entity.getImportDateFormat(), value);
+                throw new RuntimeException("获取cell值异常");
+            }
+        }
+        return null;
+    }
+
+    public static void main(String[] args) throws NoSuchMethodException {
+        Class clazz = User.class;
+        Method getPwd = clazz.getMethod("setPwd", String.class);
+        Type[] genericParameterTypes = getPwd.getGenericParameterTypes();
+        String s = genericParameterTypes[0].toString();
+        System.out.println(s);
     }
 
 }

@@ -97,6 +97,7 @@ public class ExcelImportService {
         //数据开始读取
         while (rowIterator.hasNext()) {
             Row row = rowIterator.next();
+            StringBuilder errorMsg = new StringBuilder();
             //数据对象创建
             Object object = PublicUtils.createObject(pojoClass);
             try {
@@ -104,7 +105,7 @@ public class ExcelImportService {
                 for (Integer index : titleIndex) {
                     Cell cell = row.getCell(index);
                     String titleName = titleMap.get(index);
-                    Object value = cellValueService.getValue(object, cell, excelParams, titleName);
+                    Object value = cellValueService.getValue(object, cell, excelParams, titleName,errorMsg);
 
                 }
             } catch (Exception e) {

@@ -2,6 +2,9 @@ package com.zl.entity;
 
 import com.zl.annotation.Excel;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -25,6 +28,7 @@ public class User implements Serializable {
     @Excel(name = "更新日期", exportDateFormat = "yyyy-MM-dd HH:mm:ss", orderNum = 2)
     private Date updateTime;
     @Excel(name = "价格", numFormat = "#0.00", orderNum = 1)
+    @Max(value = 10, message = "价格超出范围")
     private BigDecimal price;
 
     private String pwd;

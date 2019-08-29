@@ -17,7 +17,6 @@ public class ExcelVerifyHandlerResult {
 
     }
 
-
     public ExcelVerifyHandlerResult(boolean success) {
         this.success = success;
     }
