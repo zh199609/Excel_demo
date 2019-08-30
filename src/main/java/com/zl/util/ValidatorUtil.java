@@ -12,7 +12,7 @@ import java.util.Set;
 /**
  * JSR303校验
  */
-public class validatorUtil {
+public class ValidatorUtil {
     private final static Validator VALIDATOR;
 
     static {
@@ -20,8 +20,7 @@ public class validatorUtil {
         VALIDATOR = factory.getValidator();
     }
 
-    public validatorUtil() {
-
+    public ValidatorUtil() {
     }
 
     /**
@@ -45,7 +44,7 @@ public class validatorUtil {
     private static String getValidateErrMsg(Set<ConstraintViolation<Object>> set) {
         StringBuilder builder = new StringBuilder();
         for (ConstraintViolation<Object> constraintViolation : set) {
-            builder.append(constraintViolation.getMessage()).append(",");
+            builder.append(constraintViolation.getMessage()).append(";");
         }
         return builder.substring(0, builder.length() - 1);
     }

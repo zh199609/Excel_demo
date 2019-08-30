@@ -95,7 +95,7 @@ public class CellValueService {
         clazz = (Class) genericParameterTypes[0];
         Object result = getCellValue(classFullName, cell, entity);
         getValueByType(classFullName, result, clazz, titleName, errorMsg);
-        return getCellValue(classFullName, cell, entity);
+        return getValueByType(classFullName, result, clazz, titleName, errorMsg);
     }
 
     /**
@@ -104,7 +104,7 @@ public class CellValueService {
      *
      * @param classFullName
      * @param result
-     * @param entity
+     * @param clazz
      * @param titleName
      * @param errorMsg
      * @return : void
@@ -139,12 +139,15 @@ public class CellValueService {
                 //如果Excel中读取的不是String
                 return String.valueOf(result);
             }
-            if ()
+            if (clazz != null && clazz.isEnum()) {
+                //TODO entity中添加枚举注解方法
+                Enum.valueOf(clazz, result.toString());
+            }
             //TODO:其他类型 添加错误MSG
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(clazz.getName() + "getValueByType错误");
         }
-        return null;
+        return result;
     }
 
     private String formateDate(ExcelImportEntity entity, Date value) {

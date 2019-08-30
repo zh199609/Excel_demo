@@ -13,11 +13,11 @@ public class ImportParams {
     /**
      * 表头行  默认0
      */
-    private int headRow = 0;
+    private int headRow = 1;
     /**
      * 数据开始的行数
      */
-    private int dataRow = 0;
+    private int dataRow = 2;
     /**
      * sheet位置  默认0
      */
@@ -38,6 +38,18 @@ public class ImportParams {
      * 导入字段是否校验序列  设置true必须设置importFields   @Excel中的Order属性用于导出   也可导入添加相应注解
      */
     private boolean CheckOrder = false;
+    /**
+     * 是否进行数据的校验   JSR303&自定义的校验器
+     */
+    private boolean isVerify = true;
+
+    public boolean isVerify() {
+        return isVerify;
+    }
+
+    public void setVerify(boolean verify) {
+        isVerify = verify;
+    }
 
     public boolean isCheckOrder() {
         return CheckOrder;

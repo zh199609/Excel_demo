@@ -7,9 +7,11 @@ import com.zl.excel.ExcelImportUtil;
 import com.zl.excel.ImportParams;
 import com.zl.excel.ImportResult;
 import com.zl.excel.verify.ExcelVerifyHandlerResult;
+import com.zl.excel.verify.IExcelVerifyHandler;
 import com.zl.util.CellUtil;
 import com.zl.util.PoiReflectorUtil;
 import com.zl.util.PublicUtils;
+import com.zl.util.ValidatorUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.formula.functions.T;
 import org.apache.poi.ss.usermodel.Cell;
@@ -20,6 +22,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.validation.Validator;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -61,9 +64,11 @@ public class ExcelImportService {
             if (sheet == null) {
                 throw new RuntimeException("所对应的Sheet不存在");
             }
-            //TODO
-            importExcel(list, sheet, importParams, clazz, importResult);
-
+            list.addAll(importExcel(list, sheet, importParams, clazz, importResult));
+            //TODO  如何进行数据的返回
+            if (importResult.isVerfiyFail()) {
+                return null;
+            }
             long endTime = System.currentTimeMillis();
         } catch (Exception e) {
 
@@ -80,6 +85,7 @@ public class ExcelImportService {
         //获取导入字段
         getImportField(classFields, excelParams, pojoClass);
         Iterator<Row> rowIterator = sheet.rowIterator();
+        //跳过title和head的行
         for (int i = 0; i < importParams.getTitleRow(); i++) {
             rowIterator.next();
         }
@@ -90,13 +96,18 @@ public class ExcelImportService {
             return null;
         }
         //从数据行开始读取  跳过无效的行数
-        for (int i = 0; i < importParams.getDataRow(); i++) {
+        for (int i = importParams.getTitleRow(); i < importParams.getDataRow(); i++) {
             rowIterator.next();
         }
         Map<String, Object> valMap;
         //数据开始读取
+        Row row;
         while (rowIterator.hasNext()) {
-            Row row = rowIterator.next();
+            row = rowIterator.next();
+            //跳出循环
+            if (sheet.getLastRowNum() - row.getRowNum() < 0) {
+                break;
+            }
             StringBuilder errorMsg = new StringBuilder();
             //数据对象创建
             Object object = PublicUtils.createObject(pojoClass);
@@ -105,17 +116,49 @@ public class ExcelImportService {
                 for (Integer index : titleIndex) {
                     Cell cell = row.getCell(index);
                     String titleName = titleMap.get(index);
-                    Object value = cellValueService.getValue(object, cell, excelParams, titleName, errorMsg);
-
+                    //给对象的属性赋值
+                    setFieldValue(object, cell, excelParams, titleName, errorMsg);
+                }
+                //数据校验
+                if (verifyData(object, row, importParams, errorMsg)) {
+                    collection.add(object);
                 }
             } catch (Exception e) {
-
+                //TODO  所有的异常进行处理
+                e.printStackTrace();
             }
-
         }
+        return collection;
+    }
 
+    public boolean verifyData(Object object, Row row, ImportParams importParams, StringBuilder errorMsg) {
+        //true正确
+        boolean verifyResult = true;
+//        errorMsg.append("第" + row.getRowNum() + "行数据：");
+        if (importParams.isVerify()) {
+            //JSR303验证
+            String validationMsg = ValidatorUtil.validation(object);
+            if (StringUtils.isNotBlank(validationMsg)) {
+                errorMsg.append(errorMsg);
+                verifyResult = false;
+            }
+        }
+        //自定义验证
+        IExcelVerifyHandler excelVerifyHandler = importParams.getExcelVerifyHandler();
+        if (excelVerifyHandler != null) {
+            ExcelVerifyHandlerResult verifyHandler = excelVerifyHandler.verifyHandler(object);
+            if (!verifyHandler.isSuccess()) {
+                errorMsg.append(verifyHandler.getMsg());
+                verifyResult = false;
+            }
+        }
+        return verifyResult;
+    }
 
-        return null;
+    private void setFieldValue(Object object, Cell cell, Map<String, ExcelImportEntity> excelParams, String titleName, StringBuilder errorMsg) throws Exception {
+        //获取属性值  包含类型的校验
+        Object value = cellValueService.getValue(object, cell, excelParams, titleName, errorMsg);
+        setValues(excelParams.get(titleName), object, value);
     }
 
     /**
@@ -256,4 +299,12 @@ public class ExcelImportService {
         return verifyResult;
     }
 
+
+    public void setValues(ExcelImportEntity entity, Object object, Object value) throws Exception {
+        // 去掉非包装类的异常情况
+        if (value == null) {
+            return;
+        }
+        entity.getMethod().invoke(object, value);
+    }
 }
