@@ -50,7 +50,7 @@ public class ExcelImportService {
         try {
             byte[] bytes = new byte[1024];
             int len = 0;
-            while ((len = inputStream.read(bytes)) != 0) {
+            while ((len = inputStream.read(bytes)) > -1) {
                 arrayOut.write(bytes, 0, len);
             }
             arrayOut.flush();
@@ -64,17 +64,19 @@ public class ExcelImportService {
             if (sheet == null) {
                 throw new RuntimeException("所对应的Sheet不存在");
             }
+            //参数list并没用使用
             list.addAll(importExcel(list, sheet, importParams, clazz, importResult));
             //TODO  如何进行数据的返回
             if (importResult.isVerfiyFail()) {
                 return null;
             }
+            importResult.setList(list);
             long endTime = System.currentTimeMillis();
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
 
-        return null;
+        return importResult;
     }
 
 
@@ -173,7 +175,8 @@ public class ExcelImportService {
     public void getImportField(Field[] fields, Map<String, ExcelImportEntity> importEntitys, Class<?> pojoClass) {
         for (int i = 0; i < fields.length; i++) {
             Field field = fields[i];
-
+            //TODO 我的天。。。。。。
+            getAllExcelField(fields, importEntitys, pojoClass);
         }
     }
 

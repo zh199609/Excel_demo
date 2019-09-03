@@ -17,18 +17,17 @@ public class User implements Serializable {
 
     private static final long serialVersionUID = 5131566962871242335L;
 
-    @Excel(name = "编号", isColumnHidden = true)
+    @Excel(name = "编号", isColumnHidden = false)
     private Integer id;
     @Excel(name = "姓名")
     private String name;
     @Excel(name = "状态")//枚举重写toString
     private Status status;
-    @Excel(name = "出生年月", exportDateFormat = "yyyy-MM-dd")
+    @Excel(name = "出生年月", exportDateFormat = "yyyy-MM-dd", importDateFormat = "yyyy-MM-dd")
     private Date birthday;
-    @Excel(name = "更新日期", exportDateFormat = "yyyy-MM-dd HH:mm:ss", orderNum = 2)
+    @Excel(name = "更新日期", exportDateFormat = "yyyy-MM-dd HH:mm:ss", orderNum = 2, importDateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
     @Excel(name = "价格", numFormat = "#0.00", orderNum = 1)
-    @Max(value = 10, message = "价格超出范围")
     private BigDecimal price;
 
     private String pwd;

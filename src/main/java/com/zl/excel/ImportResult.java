@@ -86,4 +86,16 @@ public class ImportResult<T> {
     public void setVerifyMsg(Map<Integer, StringBuilder> verifyMsg) {
         this.verifyMsg = verifyMsg;
     }
+
+    @Override
+    public String toString() {
+        return "ImportResult{" +
+                "list=" + list +
+                ", failList=" + failList +
+                ", verfiyFail=" + verfiyFail +
+                ", workbook=" + workbook +
+                ", importNum=" + importNum +
+                ", verifyMsg=" + verifyMsg +
+                '}';
+    }
 }
