@@ -3,6 +3,7 @@ package com.zl.service;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import com.zl.entity.User;
 import com.zl.excel.ExcelImportEntity;
+import com.zl.util.PoiReflectorUtil;
 import jdk.internal.org.objectweb.asm.signature.SignatureWriter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -94,8 +95,7 @@ public class CellValueService {
         classFullName = genericParameterTypes[0].toString();
         clazz = (Class) genericParameterTypes[0];
         Object result = getCellValue(classFullName, cell, entity);
-        getValueByType(classFullName, result, clazz, titleName, errorMsg);
-        return getValueByType(classFullName, result, clazz, titleName, errorMsg);
+        return getValueByType(classFullName, result, clazz, entity, errorMsg);
     }
 
     /**
@@ -105,11 +105,11 @@ public class CellValueService {
      * @param classFullName
      * @param result
      * @param clazz
-     * @param titleName
+     * @param entity
      * @param errorMsg
      * @return : void
      */
-    private Object getValueByType(String classFullName, Object result, Class clazz, String titleName, StringBuilder errorMsg) {
+    private Object getValueByType(String classFullName, Object result, Class clazz, ExcelImportEntity entity, StringBuilder errorMsg) {
         try {
             if (result == null || StringUtils.isBlank(result.toString())) {
                 return null;
@@ -140,12 +140,17 @@ public class CellValueService {
                 return String.valueOf(result);
             }
             if (clazz != null && clazz.isEnum()) {
-                //TODO entity中添加枚举注解方法
-                Enum.valueOf(clazz, result.toString());
+                //TODO 参照其他框架的枚举反射
+                String importEnumMethod = entity.getImportEnumMethod();
+                if (StringUtils.isNotBlank(importEnumMethod)) {
+                    return PoiReflectorUtil.forClass(clazz).execEnumStaticMethod(importEnumMethod, result);
+                } else {
+                    Enum.valueOf(clazz, result.toString());
+                }
             }
             //TODO:其他类型 添加错误MSG
         } catch (Exception e) {
-            LOGGER.error(clazz.getName() + "getValueByType错误");
+            LOGGER.error(clazz.getName() + "---getValueByType错误");
         }
         return result;
     }

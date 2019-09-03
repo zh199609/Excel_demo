@@ -1,5 +1,7 @@
 package com.zl.entity;
 
+import java.lang.reflect.Constructor;
+
 /**
  * @ClassName Status
  * @Description TODO
@@ -28,4 +30,15 @@ public enum Status {
     public void setName(String name) {
         this.name = name;
     }
+
+    public static Status importEnum(String s) {
+        Status[] values = Status.values();
+        for (Status status : values) {
+            if (status.name.equals(s)) {
+                return status;
+            }
+        }
+        return null;
+    }
+    ;
 }

@@ -88,8 +88,8 @@ public class ExcelImportService {
         getImportField(classFields, excelParams, pojoClass);
         Iterator<Row> rowIterator = sheet.rowIterator();
         //跳过title和head的行
-        for (int i = 0; i < importParams.getTitleRow(); i++) {
-            rowIterator.next();
+        for (int i = 0; i <= importParams.getTitleRow(); i++) {
+            Row next = rowIterator.next();
         }
         Map<Integer, String> titleMap = getTitleMap(rowIterator, importParams, excelParams);
         //模板校验错误直接返回
@@ -98,7 +98,7 @@ public class ExcelImportService {
             return null;
         }
         //从数据行开始读取  跳过无效的行数
-        for (int i = importParams.getTitleRow(); i < importParams.getDataRow(); i++) {
+        for (int i = importParams.getHeadRow(); i < importParams.getDataRow() - 1; i++) {
             rowIterator.next();
         }
         Map<String, Object> valMap;
@@ -212,8 +212,9 @@ public class ExcelImportService {
         ExcelImportEntity excelImportEntity = new ExcelImportEntity();
         excelImportEntity.setName(annotation.name());
         excelImportEntity.setImportDateFormat(annotation.importDateFormat());
+        excelImportEntity.setImportEnumMethod(annotation.enumImportMethod());
 //        excelImportEntity.setImportField(annotation.isImportField());
-        excelImportEntity.setMethod(PoiReflectorUtil.fromCache(pojoClass).getGetMethod(field.getName()));
+        excelImportEntity.setMethod(PoiReflectorUtil.fromCache(pojoClass).getSetMethod(field.getName()));
         //importEntityMap.put(excelImportEntity.getName(), excelImportEntity);
         return excelImportEntity;
     }

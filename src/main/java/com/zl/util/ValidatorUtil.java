@@ -1,6 +1,8 @@
 package com.zl.util;
 
+import com.zl.entity.Status;
 import com.zl.entity.User;
+import com.zl.enums.ExcelType;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -50,10 +52,12 @@ public class ValidatorUtil {
     }
 
     public static void main(String[] args) {
-        User user = new User();
+        /*User user = new User();
         user.setPrice(new BigDecimal(12));
         String validation = validation(user);
-        System.out.println(validation);
+        System.out.println(validation);*/
+        Object o = PoiReflectorUtil.forClass(Status.class).execEnumStaticMethod("importEnum", "有效");
+        System.out.println(o);
     }
 
 

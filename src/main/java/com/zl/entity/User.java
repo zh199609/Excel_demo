@@ -21,7 +21,7 @@ public class User implements Serializable {
     private Integer id;
     @Excel(name = "姓名")
     private String name;
-    @Excel(name = "状态")//枚举重写toString
+    @Excel(name = "状态", enumImportMethod = "importEnum")//枚举重写toString
     private Status status;
     @Excel(name = "出生年月", exportDateFormat = "yyyy-MM-dd", importDateFormat = "yyyy-MM-dd")
     private Date birthday;
@@ -95,5 +95,18 @@ public class User implements Serializable {
 
     public void setPwd(String pwd) {
         this.pwd = pwd;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", status=" + status +
+                ", birthday=" + birthday +
+                ", updateTime=" + updateTime +
+                ", price=" + price +
+                ", pwd='" + pwd + '\'' +
+                '}';
     }
 }

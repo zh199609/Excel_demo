@@ -19,11 +19,14 @@ public class ExcelImportEntity {
      * 导入字段校验
      */
     private boolean importField;
-
     /**
      * 时间格式
      */
     private String importDateFormat;
+    /**
+     * 导入枚举处理方法
+     */
+    private String importEnumMethod;
 
     public String getName() {
         return name;
@@ -55,5 +58,13 @@ public class ExcelImportEntity {
 
     public void setImportDateFormat(String importDateFormat) {
         this.importDateFormat = importDateFormat;
+    }
+
+    public String getImportEnumMethod() {
+        return importEnumMethod;
+    }
+
+    public void setImportEnumMethod(String importEnumMethod) {
+        this.importEnumMethod = importEnumMethod;
     }
 }
