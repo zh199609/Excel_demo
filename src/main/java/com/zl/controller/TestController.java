@@ -104,10 +104,6 @@ public class TestController {
         ExcelUtils.exportExcel(workbook, "鼠标列表.xlsx", response, request);
     }
 
-    @RequestMapping(value = "/")
-    public String index() {
-        return "show";
-    }
 
     @RequestMapping(value = "/upload")
     @ResponseBody
