@@ -1,4 +1,4 @@
 package com.zl.util;
 
-public class DateUtil {
+public class TestUtil {
 }

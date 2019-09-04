@@ -11,7 +11,9 @@ import com.zl.excel.style.ExcelExportStylerCustomImpl;
 import com.zl.util.ConcurrentDateUtil;
 import com.zl.util.PoiMergeCellUtil;
 import com.zl.util.PublicUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
@@ -56,7 +58,7 @@ public class TestController {
 
         List<User> list = new ArrayList<>();
         Random random = new Random();
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 1000; i++) {
             User user = new User(i, "用户" + i + "号");
             user.setStatus(i % 2 == 0 ? Status.VALID : Status.INVALID);
             Date date = new Date();
@@ -147,12 +149,17 @@ public class TestController {
     @RequestMapping(value = "/excelUpload")
     @ResponseBody
     public String excelTest(@RequestParam("uploadFile") MultipartFile file) {
+
+
         try {
             InputStream inputStream = file.getInputStream();
             ImportParams importParams = new ImportParams();
-            importParams.setVerify(true);
+            importParams.setExcelVerifyHandler(new VerifyHandler());
             ImportResult<User> objectImportResult = ExcelImportUtil.importExcel(inputStream, User.class, importParams);
-            System.out.println(objectImportResult);
+            if (CollectionUtils.isNotEmpty(objectImportResult.getList())) {
+                System.out.println("数据：" + objectImportResult.getList().size());
+            }
+            System.out.println("错误：" + objectImportResult.getVerifyMsg());
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -18,6 +18,7 @@ public class User implements Serializable {
     private static final long serialVersionUID = 5131566962871242335L;
 
     @Excel(name = "编号", isColumnHidden = false)
+    @NotNull(message = "编号不能为空")
     private Integer id;
     @Excel(name = "姓名")
     private String name;

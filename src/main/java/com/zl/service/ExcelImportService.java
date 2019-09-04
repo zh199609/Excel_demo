@@ -1,9 +1,7 @@
 package com.zl.service;
 
 import com.zl.annotation.Excel;
-import com.zl.entity.User;
 import com.zl.excel.ExcelImportEntity;
-import com.zl.excel.ExcelImportUtil;
 import com.zl.excel.ImportParams;
 import com.zl.excel.ImportResult;
 import com.zl.excel.verify.ExcelVerifyHandlerResult;
@@ -22,7 +20,6 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.validation.Validator;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -66,16 +63,15 @@ public class ExcelImportService {
             }
             //参数list并没用使用
             list.addAll(importExcel(list, sheet, importParams, clazz, importResult));
-            //TODO  如何进行数据的返回
-            if (importResult.isVerfiyFail()) {
-                return null;
+            //TODO
+            if (!importResult.isVerfiyFail()) {
+                importResult.setList(list);
             }
-            importResult.setList(list);
             long endTime = System.currentTimeMillis();
+            LOGGER.debug("excel读取耗时：" + (endTime - startTime) + "毫秒");
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return importResult;
     }
 
@@ -89,19 +85,18 @@ public class ExcelImportService {
         Iterator<Row> rowIterator = sheet.rowIterator();
         //跳过title和head的行
         for (int i = 0; i <= importParams.getTitleRow(); i++) {
-            Row next = rowIterator.next();
+            rowIterator.next();
         }
         Map<Integer, String> titleMap = getTitleMap(rowIterator, importParams, excelParams);
         //模板校验错误直接返回
         boolean titleVerify = verifyExcelTemplate(importParams, titleMap, excelParams, importResult);
-        if (titleVerify) {
+        if (!titleVerify) {
             return null;
         }
         //从数据行开始读取  跳过无效的行数
         for (int i = importParams.getHeadRow(); i < importParams.getDataRow() - 1; i++) {
             rowIterator.next();
         }
-        Map<String, Object> valMap;
         //数据开始读取
         Row row;
         while (rowIterator.hasNext()) {
@@ -110,6 +105,7 @@ public class ExcelImportService {
             if (sheet.getLastRowNum() - row.getRowNum() < 0) {
                 break;
             }
+            String errorNumMsg = "第" + row.getRowNum() + "数据：";
             StringBuilder errorMsg = new StringBuilder();
             //数据对象创建
             Object object = PublicUtils.createObject(pojoClass);
@@ -124,24 +120,35 @@ public class ExcelImportService {
                 //数据校验
                 if (verifyData(object, row, importParams, errorMsg)) {
                     collection.add(object);
+                } else {
+                    importResult.getVerifyMsg().put(row.getRowNum(), errorNumMsg + errorMsg);
+                    importResult.setVerfiyFail(true);
                 }
             } catch (Exception e) {
-                //TODO  所有的异常进行处理
                 e.printStackTrace();
             }
         }
         return collection;
     }
 
+    /**
+     * 功能描述:
+     * 〈数据校验〉
+     *
+     * @param object
+     * @param row
+     * @param importParams
+     * @param errorMsg
+     * @return : boolean
+     */
     public boolean verifyData(Object object, Row row, ImportParams importParams, StringBuilder errorMsg) {
         //true正确
         boolean verifyResult = true;
-//        errorMsg.append("第" + row.getRowNum() + "行数据：");
         if (importParams.isVerify()) {
             //JSR303验证
             String validationMsg = ValidatorUtil.validation(object);
             if (StringUtils.isNotBlank(validationMsg)) {
-                errorMsg.append(errorMsg);
+                errorMsg.append(validationMsg);
                 verifyResult = false;
             }
         }
@@ -153,6 +160,10 @@ public class ExcelImportService {
                 errorMsg.append(verifyHandler.getMsg());
                 verifyResult = false;
             }
+        }
+        //TODO 前面的数据类型转化错误和验证错误  会出现重复验证
+        if (StringUtils.isNotBlank(errorMsg)) {
+            verifyResult = false;
         }
         return verifyResult;
     }
@@ -265,23 +276,19 @@ public class ExcelImportService {
      */
     public boolean verifyExcelTemplate(ImportParams importParams, Map<Integer, String> titleMap, Map<String, ExcelImportEntity> excelParams, ImportResult importResult) {
         String[] importFields = importParams.getImportFields();
-        boolean verifyResult = false;
-        importResult.setVerfiyFail(true);
+        boolean verifyResult = true;
         if (importParams.getImportFields() != null && importParams.isCheckOrder()) {
             //序列的校验
             if (importFields.length != titleMap.size()) {
                 LOGGER.error("Excel导入表头不一致");
-                importResult.getVerifyMsg().put(0, "Excel导入模板错误");
                 verifyResult = false;
-                return verifyResult;
             }
             int i = 0;
             for (String s : titleMap.values()) {
                 if (!StringUtils.equals(s, importFields[i++])) {
                     LOGGER.error("Excel导入表头序列不一致");
                     verifyResult = false;
-                    importResult.getVerifyMsg().put(0, "Excel导入模板错误");
-                    return verifyResult;
+
                 }
             }
         }
@@ -289,17 +296,18 @@ public class ExcelImportService {
         if (titleMap.size() != excelParams.size()) {
             LOGGER.error("Excel导入表头数量不一致");
             verifyResult = false;
-            importResult.getVerifyMsg().put(0, "Excel导入模板错误");
-            return verifyResult;
         }
         for (String titleName : titleMap.values()) {
             if (!excelParams.containsKey(titleName)) {
                 LOGGER.error("Excel导入表头内容不一致");
                 verifyResult = false;
-                importResult.getVerifyMsg().put(0, "Excel导入模板错误");
+
             }
         }
-        importResult.setVerfiyFail(false);
+        if (!verifyResult) {
+            importResult.setVerfiyFail(true);
+            importResult.getVerifyMsg().put(1, "Excel导入模板错误");
+        }
         return verifyResult;
     }
 

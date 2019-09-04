@@ -22,7 +22,7 @@ public class ImportResult<T> {
      */
     private List<T> failList;
     /**
-     * 是否存在校验失败
+     * 是否存在校验失败 默认false
      */
     private boolean verfiyFail;
     /**

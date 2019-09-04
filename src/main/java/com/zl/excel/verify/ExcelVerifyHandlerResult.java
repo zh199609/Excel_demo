@@ -7,7 +7,7 @@ public class ExcelVerifyHandlerResult {
     /**
      * 是否正确
      */
-    private boolean success;
+    private boolean success = true;
     /**
      * 错误信息
      */

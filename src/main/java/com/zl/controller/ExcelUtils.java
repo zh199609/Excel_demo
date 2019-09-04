@@ -93,6 +93,7 @@ public class ExcelUtils {
             e.printStackTrace();
         } finally {
             if (out != null) {
+                out.flush();
                 out.close();
             }
             if (workbook != null) {

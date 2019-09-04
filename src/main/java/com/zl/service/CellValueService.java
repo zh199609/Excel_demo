@@ -148,11 +148,11 @@ public class CellValueService {
                     Enum.valueOf(clazz, result.toString());
                 }
             }
-            //TODO:其他类型 添加错误MSG
         } catch (Exception e) {
+            errorMsg.append(entity.getName()+"数据填写错误");
             LOGGER.error(clazz.getName() + "---getValueByType错误");
         }
-        return result;
+        return null;
     }
 
     private String formateDate(ExcelImportEntity entity, Date value) {
