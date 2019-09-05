@@ -32,9 +32,19 @@ public class RandomTest {
     }
 
     @RequestMapping(value = "/eatSelect")
+    @ResponseBody
     public String eatSelect() {
-        return "";
+        List<String> play = redisTemplate.opsForSet().randomMembers("eat", 1);
+        return play.get(0);
     }
+
+    @RequestMapping(value = "addEat/{name}")
+    @ResponseBody
+    public String addEat(@PathVariable("name") String eatName) {
+        redisTemplate.opsForSet().add("eat", eatName);
+        return eatName;
+    }
+
 
     @RequestMapping(value = "/")
     public ModelAndView index() {

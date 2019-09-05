@@ -8,7 +8,7 @@ import org.apache.poi.xssf.usermodel.XSSFColor;
 
 /**
  * @ClassName: ExportParams
- * @Description: TODO 目前仅支持单sheet，导出参数设置
+ * @Description:  目前仅支持单sheet，导出参数设置
  * @Author: zl
  * @Date: 2019/8/1 21:29
  * @Version: 1.0

@@ -52,12 +52,10 @@ public class ValidatorUtil {
     }
 
     public static void main(String[] args) {
-        /*User user = new User();
+        User user = new User();
         user.setPrice(new BigDecimal(12));
         String validation = validation(user);
-        System.out.println(validation);*/
-        Object o = PoiReflectorUtil.forClass(Status.class).execEnumStaticMethod("importEnum", "有效");
-        System.out.println(o);
+        System.out.println(validation);
     }
 
 

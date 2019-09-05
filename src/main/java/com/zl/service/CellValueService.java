@@ -3,6 +3,7 @@ package com.zl.service;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import com.zl.entity.User;
 import com.zl.excel.ExcelImportEntity;
+import com.zl.util.ConcurrentDateUtil;
 import com.zl.util.PoiReflectorUtil;
 import jdk.internal.org.objectweb.asm.signature.SignatureWriter;
 import org.apache.commons.lang3.StringUtils;
@@ -34,45 +35,59 @@ public class CellValueService {
 
     private List<String> handlerList = null;
 
-
-    private Object getCellValue(String classFullName, Cell cell, ExcelImportEntity entity) {
+    /**
+     * 功能描述:
+     * 〈包含日期的格式化〉
+     * TODO:和getValueByType进行合并
+     *
+     * @param classFullName
+     * @param cell
+     * @param entity
+     * @param errorMsg
+     * @return : java.lang.Object
+     */
+    private Object getCellValue(String classFullName, Cell cell, ExcelImportEntity entity, StringBuilder errorMsg) {
         if (cell == null) {
             return "";
         }
         Object result = null;
-        if ("class java.util.Date".equals(classFullName)) {
-            if (CellType.NUMERIC == cell.getCellType() && DateUtil.isCellDateFormatted(cell)) {
+        try {
+            if ("class java.util.Date".equals(classFullName)) {
+                if (CellType.NUMERIC == cell.getCellType() && DateUtil.isCellDateFormatted(cell)) {
+                    result = DateUtil.getJavaDate(cell.getNumericCellValue());
+                } else {
+                    cell.setCellType(CellType.STRING);
+                    result = getDateData(entity, cell.getStringCellValue());
+                }
+
+            } else if (CellType.NUMERIC == cell.getCellType() && DateUtil.isCellDateFormatted(cell)) {
                 result = DateUtil.getJavaDate(cell.getNumericCellValue());
             } else {
-                cell.setCellType(CellType.STRING);
-                result = getDateData(entity, cell.getStringCellValue());
+                switch (cell.getCellType()) {
+                    case STRING:
+                        result = cell.getRichStringCellValue() == null ? ""
+                                : cell.getRichStringCellValue().getString();
+                        break;
+                    case NUMERIC:
+                        if (DateUtil.isCellDateFormatted(cell)) {
+                            result = formateDate(entity, cell.getDateCellValue());
+                        } else {
+                            result = readNumericCell(cell);
+                        }
+                        break;
+                    case BOOLEAN:
+                        result = Boolean.toString(cell.getBooleanCellValue());
+                        break;
+                    case BLANK:
+                        break;
+                    case ERROR:
+                        break;
+                    default:
+                        break;
+                }
             }
-
-        } else if (CellType.NUMERIC == cell.getCellType() && DateUtil.isCellDateFormatted(cell)) {
-            result = DateUtil.getJavaDate(cell.getNumericCellValue());
-        } else {
-            switch (cell.getCellType()) {
-                case STRING:
-                    result = cell.getRichStringCellValue() == null ? ""
-                            : cell.getRichStringCellValue().getString();
-                    break;
-                case NUMERIC:
-                    if (DateUtil.isCellDateFormatted(cell)) {
-                        result = formateDate(entity, cell.getDateCellValue());
-                    } else {
-                        result = readNumericCell(cell);
-                    }
-                    break;
-                case BOOLEAN:
-                    result = Boolean.toString(cell.getBooleanCellValue());
-                    break;
-                case BLANK:
-                    break;
-                case ERROR:
-                    break;
-                default:
-                    break;
-            }
+        } catch (Exception e) {
+            errorMsg.append(entity.getName() + "数据填写错误,");
         }
         return result;
     }
@@ -94,7 +109,7 @@ public class CellValueService {
         //属性字段的返回类型
         classFullName = genericParameterTypes[0].toString();
         clazz = (Class) genericParameterTypes[0];
-        Object result = getCellValue(classFullName, cell, entity);
+        Object result = getCellValue(classFullName, cell, entity, errorMsg);
         return getValueByType(classFullName, result, clazz, entity, errorMsg);
     }
 
@@ -149,7 +164,7 @@ public class CellValueService {
                 }
             }
         } catch (Exception e) {
-            errorMsg.append(entity.getName()+"数据填写错误");
+            errorMsg.append(entity.getName() + "数据填写错误,");
             LOGGER.error(clazz.getName() + "---getValueByType错误");
         }
         return null;
@@ -157,9 +172,7 @@ public class CellValueService {
 
     private String formateDate(ExcelImportEntity entity, Date value) {
         if (StringUtils.isNotEmpty(entity.getImportDateFormat()) && value != null) {
-            //TODO 优化这个format
-            SimpleDateFormat format = new SimpleDateFormat(entity.getImportDateFormat());
-            return format.format(value);
+            return ConcurrentDateUtil.formatDate(value, entity.getImportDateFormat());
         }
         return null;
     }
@@ -185,17 +198,17 @@ public class CellValueService {
      * @return : java.util.Date
      */
     private Date getDateData(ExcelImportEntity entity, String value) {
+        Date date = null;
         if (StringUtils.isNotEmpty(entity.getImportDateFormat()) && StringUtils.isNotEmpty(value)) {
-            //TODO 优化
-            SimpleDateFormat format = new SimpleDateFormat(entity.getImportDateFormat());
+            //SimpleDateFormat format = new SimpleDateFormat(entity.getImportDateFormat());
             try {
-                return format.parse(value);
-            } catch (ParseException e) {
+                return ConcurrentDateUtil.parseDateStr(value, entity.getImportDateFormat());
+            } catch (Exception e) {
                 LOGGER.error("时间格式化失败,格式化:{},值:{}", entity.getImportDateFormat(), value);
                 throw new RuntimeException("获取cell值异常");
             }
         }
-        return null;
+        return date;
     }
 
     public static void main(String[] args) throws NoSuchMethodException {

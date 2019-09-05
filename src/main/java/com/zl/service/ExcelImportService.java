@@ -63,7 +63,6 @@ public class ExcelImportService {
             }
             //参数list并没用使用
             list.addAll(importExcel(list, sheet, importParams, clazz, importResult));
-            //TODO
             if (!importResult.isVerfiyFail()) {
                 importResult.setList(list);
             }
@@ -105,7 +104,7 @@ public class ExcelImportService {
             if (sheet.getLastRowNum() - row.getRowNum() < 0) {
                 break;
             }
-            String errorNumMsg = "第" + row.getRowNum() + "数据：";
+            String errorNumMsg = "第" + (row.getRowNum() + 1) + "数据：";
             StringBuilder errorMsg = new StringBuilder();
             //数据对象创建
             Object object = PublicUtils.createObject(pojoClass);
@@ -117,8 +116,8 @@ public class ExcelImportService {
                     //给对象的属性赋值
                     setFieldValue(object, cell, excelParams, titleName, errorMsg);
                 }
-                //数据校验
-                if (verifyData(object, row, importParams, errorMsg)) {
+                //数据校验   如类型转化错误将跳过JSR303和自定义的校验器，类型错误会出现null，避免出现重复错误信息
+                if (StringUtils.isBlank(errorMsg) && verifyData(object, row, importParams, errorMsg)) {
                     collection.add(object);
                 } else {
                     importResult.getVerifyMsg().put(row.getRowNum(), errorNumMsg + errorMsg);
@@ -161,7 +160,6 @@ public class ExcelImportService {
                 verifyResult = false;
             }
         }
-        //TODO 前面的数据类型转化错误和验证错误  会出现重复验证
         if (StringUtils.isNotBlank(errorMsg)) {
             verifyResult = false;
         }
@@ -186,7 +184,6 @@ public class ExcelImportService {
     public void getImportField(Field[] fields, Map<String, ExcelImportEntity> importEntitys, Class<?> pojoClass) {
         for (int i = 0; i < fields.length; i++) {
             Field field = fields[i];
-            //TODO 我的天。。。。。。
             getAllExcelField(fields, importEntitys, pojoClass);
         }
     }
@@ -200,7 +197,6 @@ public class ExcelImportService {
                 continue;
             }
             //基本类型和枚举  pojo对象不支持
-            //TODO  Collection去掉
             if (PublicUtils.isJavaClass(field) || field.getType().isEnum()) {
                 ExcelImportEntity importEntity = getImportEntity(field, pojoClass);
                 importEntityMap.put(importEntity.getName(), importEntity);
@@ -266,7 +262,6 @@ public class ExcelImportService {
     /**
      * 功能描述:
      * 〈表头校验  checkOrder为false时importFields设置无效 校验注解属性字段〉
-     * TODO: checkOrder为false时也进行importFields的校验
      *
      * @param importParams
      * @param titleMap

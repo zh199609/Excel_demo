@@ -58,7 +58,7 @@ public class TestController {
 
         List<User> list = new ArrayList<>();
         Random random = new Random();
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 2; i++) {
             User user = new User(i, "用户" + i + "号");
             user.setStatus(i % 2 == 0 ? Status.VALID : Status.INVALID);
             Date date = new Date();
@@ -79,8 +79,6 @@ public class TestController {
 
     @GetMapping(value = "/show")
     public void show(HttpServletResponse response, HttpServletRequest request) {
-        System.out.println("show");
-
         XSSFWorkbook workbook = new XSSFWorkbook();
         XSSFSheet sheet1 = workbook.createSheet("整体概况");
         Row row = sheet1.createRow(0);
@@ -160,6 +158,11 @@ public class TestController {
             e.printStackTrace();
         }
         return "Success";
+    }
+
+    @RequestMapping(value = "/showHtml")
+    public String show(){
+        return "show";
     }
 
 }

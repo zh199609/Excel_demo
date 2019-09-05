@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * @ClassName: ExcelExportEntity
- * @Description: TODO excel 导出工具类,对cell类型做映射
+ * @Description:  excel 导出工具类,对cell类型做映射
  * @Author: zl
  * @Date: 2019/8/1 21:36
  * @Version: 1.0

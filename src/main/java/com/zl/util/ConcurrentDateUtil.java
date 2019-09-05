@@ -42,7 +42,7 @@ public class ConcurrentDateUtil {
     }
 
 
-    public static String formatDate(Date date, String formatStr) throws ParseException {
+    public static String formatDate(Date date, String formatStr) {
         return getDateFormat(formatStr).format(date);
     }
 
