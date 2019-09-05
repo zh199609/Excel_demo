@@ -8,7 +8,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 
 public abstract class AbstractExcelExportStyler implements IExcelExportStyler {
 
-    //单行
+    //单行    此变量缓存的
     protected CellStyle stringNoneStyle;
     //是否包装文本
     protected CellStyle stringNoneWrapStyle;
@@ -18,13 +18,13 @@ public abstract class AbstractExcelExportStyler implements IExcelExportStyler {
     protected static final short STRING_FORMAT = (short) BuiltinFormats.getBuiltinFormat("TEXT");
 
     protected void createStyles(Workbook workbook) {
-        this.stringNoneStyle = stringNoneStyle(workbook, false);
-        this.stringNoneWrapStyle = stringNoneStyle(workbook, true);
         this.workbook = workbook;
+        this.stringNoneStyle = stringNoneStyle(false);
+        this.stringNoneWrapStyle = stringNoneStyle(true);
     }
 
 
-    public CellStyle stringNoneStyle(Workbook workbook, boolean isWarp) {
+    public CellStyle stringNoneStyle(boolean isWarp) {
         return null;
     }
 

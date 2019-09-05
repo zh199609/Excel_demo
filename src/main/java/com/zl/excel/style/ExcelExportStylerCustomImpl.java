@@ -34,7 +34,7 @@ public class ExcelExportStylerCustomImpl extends AbstractExcelExportStyler imple
 
     @Override
     public CellStyle getHeaderStyle(short headerColor) {
-        System.out.println("颜色index"+headerColor);
+        System.out.println("颜色index" + headerColor);
         CellStyle cellStyle = workbook.createCellStyle();
         Font font = workbook.createFont();
         font.setFontHeightInPoints((short) 14);
@@ -72,7 +72,7 @@ public class ExcelExportStylerCustomImpl extends AbstractExcelExportStyler imple
     }
 
     @Override
-    public CellStyle stringNoneStyle(Workbook workbook, boolean isWarp) {
+    public CellStyle stringNoneStyle(boolean isWarp) {
         CellStyle cellStyle = workbook.createCellStyle();
         Font font = workbook.createFont();
         font.setFontHeightInPoints((short) 8);

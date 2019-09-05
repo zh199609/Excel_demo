@@ -44,7 +44,7 @@ public class ExcelExportStylerDefaultImpl extends AbstractExcelExportStyler impl
     }
 
     @Override
-    public CellStyle stringNoneStyle(Workbook workbook, boolean isWarp) {
+    public CellStyle stringNoneStyle( boolean isWarp) {
         CellStyle cellStyle = workbook.createCellStyle();
         cellStyle.setAlignment(HorizontalAlignment.CENTER);
         cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);

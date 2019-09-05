@@ -8,21 +8,14 @@ import com.zl.excel.ExportParams;
 import com.zl.excel.ImportParams;
 import com.zl.excel.ImportResult;
 import com.zl.excel.style.ExcelExportStylerCustomImpl;
-import com.zl.util.ConcurrentDateUtil;
 import com.zl.util.PoiMergeCellUtil;
-import com.zl.util.PublicUtils;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.time.FastDateFormat;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
-import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
@@ -32,7 +25,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -55,10 +47,9 @@ public class TestController {
     @GetMapping(value = "/test")
     @ResponseBody
     public String test(HttpServletResponse response, HttpServletRequest request) {
-
         List<User> list = new ArrayList<>();
         Random random = new Random();
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 20000; i++) {
             User user = new User(i, "用户" + i + "号");
             user.setStatus(i % 2 == 0 ? Status.VALID : Status.INVALID);
             Date date = new Date();
@@ -68,10 +59,13 @@ public class TestController {
             list.add(user);
         }
 
-
+        long start = System.currentTimeMillis();
         ExportParams exportParams = new ExportParams("计算机一班", "名单");
         exportParams.setStyle(ExcelExportStylerCustomImpl.class);
         Workbook workbook = ExcelExportUtil.exportExcel(exportParams, User.class, list);
+        long end = System.currentTimeMillis();
+        System.out.println("解析时间：" + (end - start) + "毫秒");
+
         ExcelUtils.exportExcel(workbook, "名单列表.xlsx", response, request);
         return "SUCCESS";
         //maiqun123a
@@ -161,7 +155,7 @@ public class TestController {
     }
 
     @RequestMapping(value = "/showHtml")
-    public String show(){
+    public String show() {
         return "show";
     }
 
