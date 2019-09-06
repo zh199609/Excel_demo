@@ -49,13 +49,22 @@ public class TestController {
     public String test(HttpServletResponse response, HttpServletRequest request) {
         List<User> list = new ArrayList<>();
         Random random = new Random();
-        for (int i = 0; i < 20000; i++) {
+        for (int i = 1; i < 2; i++) {
             User user = new User(i, "用户" + i + "号");
             user.setStatus(i % 2 == 0 ? Status.VALID : Status.INVALID);
             Date date = new Date();
             user.setBirthday(date);
             user.setUpdateTime(date);
             user.setPrice(new BigDecimal(100 * i * random.nextDouble()));
+            user.setaDouble(random.nextDouble() * i);
+            user.setaFloat(random.nextFloat() * i);
+            user.setaLong(random.nextLong());
+            user.setaBoolean(Boolean.valueOf("true"));
+            user.setbDouble(random.nextDouble() * i);
+            user.setbFloat(random.nextFloat() * i);
+            user.setbLong(random.nextLong());
+            user.setbInt(random.nextInt() * i);
+            user.setbBoolean(false);
             list.add(user);
         }
 
@@ -146,6 +155,7 @@ public class TestController {
             ImportResult<User> objectImportResult = ExcelImportUtil.importExcel(inputStream, User.class, importParams);
             if (CollectionUtils.isNotEmpty(objectImportResult.getList())) {
                 System.out.println("数据：" + objectImportResult.getList().size());
+                System.out.println(objectImportResult.getList());
             }
             System.out.println("错误：" + objectImportResult.getVerifyMsg());
         } catch (IOException e) {

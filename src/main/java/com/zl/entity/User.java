@@ -30,17 +30,28 @@ public class User implements Serializable {
     private Date updateTime;
     @Excel(name = "价格", numFormat = "#0.00", orderNum = 1)
     private BigDecimal price;
-
+    @Excel(name = "Double包装类型")
+    private Double aDouble;
+    @Excel(name = "Float包装类型")
+    private Float aFloat;
+    @Excel(name = "Long包装类型")
+    private Long aLong;
+    @Excel(name = "Boolean包装类型")
+    private Boolean aBoolean;
+    @Excel(name = "double基本类型")
+    private double bDouble;
+    @Excel(name = "float基本类型")
+    private float bFloat;
+    @Excel(name = "long基本类型")
+    private long bLong;
+    @Excel(name = "boolean基本类型")
+    private boolean bBoolean;
+    @Excel(name = "int基本类型")
+    private int bInt;
     private String pwd;
 
     public User() {
     }
-
-    public User(Integer id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
 
     public Integer getId() {
         return id;
@@ -90,12 +101,89 @@ public class User implements Serializable {
         this.price = price;
     }
 
+    public Double getaDouble() {
+        return aDouble;
+    }
+
+    public void setaDouble(Double aDouble) {
+        this.aDouble = aDouble;
+    }
+
+    public Float getaFloat() {
+        return aFloat;
+    }
+
+    public void setaFloat(Float aFloat) {
+        this.aFloat = aFloat;
+    }
+
+    public Long getaLong() {
+        return aLong;
+    }
+
+    public void setaLong(Long aLong) {
+        this.aLong = aLong;
+    }
+
+    public Boolean getaBoolean() {
+        return aBoolean;
+    }
+
+    public void setaBoolean(Boolean aBoolean) {
+        this.aBoolean = aBoolean;
+    }
+
+    public double getbDouble() {
+        return bDouble;
+    }
+
+    public void setbDouble(double bDouble) {
+        this.bDouble = bDouble;
+    }
+
+    public float getbFloat() {
+        return bFloat;
+    }
+
+    public void setbFloat(float bFloat) {
+        this.bFloat = bFloat;
+    }
+
+    public long getbLong() {
+        return bLong;
+    }
+
+    public void setbLong(long bLong) {
+        this.bLong = bLong;
+    }
+
+    public boolean isbBoolean() {
+        return bBoolean;
+    }
+
+    public void setbBoolean(boolean bBoolean) {
+        this.bBoolean = bBoolean;
+    }
+
+    public int getbInt() {
+        return bInt;
+    }
+
+    public void setbInt(int bInt) {
+        this.bInt = bInt;
+    }
+
     public String getPwd() {
         return pwd;
     }
 
     public void setPwd(String pwd) {
         this.pwd = pwd;
+    }
+
+    public User(Integer id, String name) {
+        this.id = id;
+        this.name = name;
     }
 
     @Override
@@ -107,6 +195,15 @@ public class User implements Serializable {
                 ", birthday=" + birthday +
                 ", updateTime=" + updateTime +
                 ", price=" + price +
+                ", aDouble=" + aDouble +
+                ", aFloat=" + aFloat +
+                ", aLong=" + aLong +
+                ", aBoolean=" + aBoolean +
+                ", bDouble=" + bDouble +
+                ", bFloat=" + bFloat +
+                ", bLong=" + bLong +
+                ", bBoolean=" + bBoolean +
+                ", bInt=" + bInt +
                 ", pwd='" + pwd + '\'' +
                 '}';
     }

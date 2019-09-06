@@ -16,7 +16,7 @@ public class ExcelImportEntity {
     private Method method;
 
     /**
-     * 导入字段校验
+     * 导入字段校验,暂未使用到该属性
      */
     private boolean importField;
     /**

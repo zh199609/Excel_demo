@@ -169,7 +169,10 @@ public class ExcelImportService {
     private void setFieldValue(Object object, Cell cell, Map<String, ExcelImportEntity> excelParams, String titleName, StringBuilder errorMsg) throws Exception {
         //获取属性值  包含类型的校验
         Object value = cellValueService.getValue(object, cell, excelParams, titleName, errorMsg);
-        setValues(excelParams.get(titleName), object, value);
+        //对于类型转换有错误 不进行设置  使用类型的默认值
+        if (StringUtils.isBlank(errorMsg)) {
+            setValues(excelParams.get(titleName), object, value);
+        }
     }
 
     /**
@@ -182,10 +185,7 @@ public class ExcelImportService {
      * @return : void
      */
     public void getImportField(Field[] fields, Map<String, ExcelImportEntity> importEntitys, Class<?> pojoClass) {
-        for (int i = 0; i < fields.length; i++) {
-            Field field = fields[i];
-            getAllExcelField(fields, importEntitys, pojoClass);
-        }
+        getAllExcelField(fields, importEntitys, pojoClass);
     }
 
 

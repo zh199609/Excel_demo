@@ -135,7 +135,7 @@ public class CellValueService {
             if ("class java.util.Boolean".equals(classFullName) || "boolean".equals(classFullName)) {
                 return Boolean.valueOf(String.valueOf(result));
             }
-            if ("class java.util.Double".equals(classFullName) || "double".equals(classFullName)) {
+            if ("class java.lang.Double".equals(classFullName) || "double".equals(classFullName)) {
                 return Double.valueOf(String.valueOf(result));
             }
             if ("class java.lang.Float".equals(classFullName) || "float".equals(classFullName)) {

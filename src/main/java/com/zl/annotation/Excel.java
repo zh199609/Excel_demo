@@ -46,6 +46,7 @@ public @interface Excel {
     //枚举导出使用的字段
     String enumExportField() default "";
 
+    //导入使用的枚举静态方法
     String enumImportMethod() default "";
 
     //1:文本
