@@ -21,6 +21,7 @@ public class ThymleafController {
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("thTest");
         modelAndView.addObject("names", set);
+        modelAndView.addObject("xixi","喜喜");
         return modelAndView;
     }
 
