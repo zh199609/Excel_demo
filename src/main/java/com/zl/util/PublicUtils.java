@@ -74,4 +74,18 @@ public class PublicUtils {
         }
         return obj;
     }
+
+
+    public static Boolean parseBoolean(String name) throws IllegalArgumentException {
+        if (Boolean.TRUE.toString().equals(name)) {
+            return Boolean.TRUE;
+        } else if (Boolean.FALSE.toString().equals(name)) {
+            return Boolean.FALSE;
+        }
+        throw new IllegalArgumentException(name+"Cannot be converted to Boolean");
+    }
+
+    public static void main(String[] args) {
+        System.out.println(parseBoolean("name"));
+    }
 }

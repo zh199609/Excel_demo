@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -49,7 +50,7 @@ public class TestController {
     public String test(HttpServletResponse response, HttpServletRequest request) {
         List<User> list = new ArrayList<>();
         Random random = new Random();
-        for (int i = 1; i < 2; i++) {
+        for (int i = 1; i < 3; i++) {
             User user = new User(i, "用户" + i + "号");
             user.setStatus(i % 2 == 0 ? Status.VALID : Status.INVALID);
             Date date = new Date();
@@ -167,6 +168,19 @@ public class TestController {
     @RequestMapping(value = "/showHtml")
     public String show() {
         return "show";
+    }
+
+
+    @RequestMapping(value = "/testAjax")
+    public String testAjax() {
+        return "ajax";
+    }
+
+    @RequestMapping(value = "/testRequest")
+    @ResponseBody
+    public User testRequest(User user) {
+        System.out.println(user);
+        return user;
     }
 
 }

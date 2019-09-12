@@ -34,9 +34,9 @@ public class ImportResult<T> {
      */
     private int importNum;
     /**
-     * 校验结果信息  错误按行  key为行号，value为该行的错误数据
+     * 校验结果信息  错误按行
      */
-    private Map<Integer, StringBuilder> verifyMsg = new LinkedHashMap<>();
+    private List<String> verifyMsg;
 
 
     public List<T> getList() {
@@ -79,23 +79,11 @@ public class ImportResult<T> {
         this.importNum = importNum;
     }
 
-    public Map<Integer, StringBuilder> getVerifyMsg() {
+    public List<String> getVerifyMsg() {
         return verifyMsg;
     }
 
-    public void setVerifyMsg(Map<Integer, StringBuilder> verifyMsg) {
+    public void setVerifyMsg(List<String> verifyMsg) {
         this.verifyMsg = verifyMsg;
-    }
-
-    @Override
-    public String toString() {
-        return "ImportResult{" +
-                "list=" + list +
-                ", failList=" + failList +
-                ", verfiyFail=" + verfiyFail +
-                ", workbook=" + workbook +
-                ", importNum=" + importNum +
-                ", verifyMsg=" + verifyMsg +
-                '}';
     }
 }

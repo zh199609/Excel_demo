@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>request</title>
+</head>
+<body>
+<button id="btn">提交</button>
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+    $('#btn').click(function () {
+        $.ajax({
+            type: 'post',
+            url: '/testRequest',
+            contentType: 'application/json;charset=UTF-8',
+            data: JSON.stringify({
+                id: 1,
+                name: '张磊'
+            }),
+            dataType:'json',
+            success: function (res) {
+                console.log("返回类型：" + typeof res)
+                console.log("返回数据：" + res);
+                console.log(JSON.stringify({
+                    id: 1,
+                    name: '张磊'
+                }))
+            }
+        });
+    });
+</script>
+</body>
+</html>

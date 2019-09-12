@@ -5,6 +5,7 @@ import com.zl.entity.User;
 import com.zl.excel.ExcelImportEntity;
 import com.zl.util.ConcurrentDateUtil;
 import com.zl.util.PoiReflectorUtil;
+import com.zl.util.PublicUtils;
 import jdk.internal.org.objectweb.asm.signature.SignatureWriter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -132,8 +133,8 @@ public class CellValueService {
             if ("class java.util.Date".equals(classFullName)) {
                 return result;
             }
-            if ("class java.util.Boolean".equals(classFullName) || "boolean".equals(classFullName)) {
-                return Boolean.valueOf(String.valueOf(result));
+            if ("class java.lang.Boolean".equals(classFullName) || "boolean".equals(classFullName)) {
+                return PublicUtils.parseBoolean(String.valueOf(result));
             }
             if ("class java.lang.Double".equals(classFullName) || "double".equals(classFullName)) {
                 return Double.valueOf(String.valueOf(result));
@@ -158,14 +159,18 @@ public class CellValueService {
                 //TODO 参照其他框架的枚举反射
                 String importEnumMethod = entity.getImportEnumMethod();
                 if (StringUtils.isNotBlank(importEnumMethod)) {
-                    return PoiReflectorUtil.forClass(clazz).execEnumStaticMethod(importEnumMethod, result);
+                    Object enumResult = PoiReflectorUtil.forClass(clazz).execEnumStaticMethod(importEnumMethod, result);
+                    if (enumResult == null) {
+                        throw new IllegalArgumentException(" Enumeration type conversion error");
+                    }
+                    return enumResult;
                 } else {
                     Enum.valueOf(clazz, result.toString());
                 }
             }
         } catch (Exception e) {
             errorMsg.append(entity.getName() + "数据填写错误,");
-            LOGGER.error(clazz.getName() + "---getValueByType错误");
+            LOGGER.error(entity.getName() + "--" + clazz.getName() + "--类型转换错误");
         }
         return null;
     }

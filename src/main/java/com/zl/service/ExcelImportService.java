@@ -10,6 +10,7 @@ import com.zl.util.CellUtil;
 import com.zl.util.PoiReflectorUtil;
 import com.zl.util.PublicUtils;
 import com.zl.util.ValidatorUtil;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.formula.functions.T;
 import org.apache.poi.ss.usermodel.Cell;
@@ -61,10 +62,11 @@ public class ExcelImportService {
             if (sheet == null) {
                 throw new RuntimeException("所对应的Sheet不存在");
             }
-            //参数list并没用使用
-            list.addAll(importExcel(list, sheet, importParams, clazz, importResult));
-            if (!importResult.isVerfiyFail()) {
-                importResult.setList(list);
+            //参数list并没用使用   importResult的list属性存放读取正确的数据
+            importExcel(list, sheet, importParams, clazz, importResult);
+            //标记本次导入存在错误
+            if (CollectionUtils.isNotEmpty(importResult.getVerifyMsg())) {
+                importResult.setVerfiyFail(true);
             }
             long endTime = System.currentTimeMillis();
             LOGGER.debug("excel读取耗时：" + (endTime - startTime) + "毫秒");
@@ -75,12 +77,13 @@ public class ExcelImportService {
     }
 
 
-    public <T> List<T> importExcel(Collection<T> result, Sheet sheet, ImportParams importParams, Class<?> pojoClass, ImportResult importResult) {
-        List collection = new ArrayList();
+    public <T> void importExcel(Collection<T> result, Sheet sheet, ImportParams importParams, Class<?> pojoClass, ImportResult importResult) {
         Field[] classFields = PublicUtils.getClassFields(pojoClass);
         Map<String, ExcelImportEntity> excelParams = new HashMap<>();
         //获取导入字段
         getImportField(classFields, excelParams, pojoClass);
+        //导入的数据行数
+        int lastRowNum = sheet.getLastRowNum();
         Iterator<Row> rowIterator = sheet.rowIterator();
         //跳过title和head的行
         for (int i = 0; i <= importParams.getTitleRow(); i++) {
@@ -90,7 +93,7 @@ public class ExcelImportService {
         //模板校验错误直接返回
         boolean titleVerify = verifyExcelTemplate(importParams, titleMap, excelParams, importResult);
         if (!titleVerify) {
-            return null;
+            return;
         }
         //从数据行开始读取  跳过无效的行数
         for (int i = importParams.getHeadRow(); i < importParams.getDataRow() - 1; i++) {
@@ -98,13 +101,14 @@ public class ExcelImportService {
         }
         //数据开始读取
         Row row;
+        List<String> errorMsgList = new ArrayList<>();
+        List dataList = new ArrayList<>();
         while (rowIterator.hasNext()) {
             row = rowIterator.next();
             //跳出循环
             if (sheet.getLastRowNum() - row.getRowNum() < 0) {
                 break;
             }
-            String errorNumMsg = "第" + (row.getRowNum() + 1) + "数据：";
             StringBuilder errorMsg = new StringBuilder();
             //数据对象创建
             Object object = PublicUtils.createObject(pojoClass);
@@ -118,16 +122,16 @@ public class ExcelImportService {
                 }
                 //数据校验   如类型转化错误将跳过JSR303和自定义的校验器，类型错误会出现null，避免出现重复错误信息
                 if (StringUtils.isBlank(errorMsg) && verifyData(object, row, importParams, errorMsg)) {
-                    collection.add(object);
+                    dataList.add(object);
                 } else {
-                    importResult.getVerifyMsg().put(row.getRowNum(), errorNumMsg + errorMsg);
-                    importResult.setVerfiyFail(true);
+                    String errorNumMsg = "第" + (row.getRowNum() + 1) + "行数据：";
+                    errorMsg.deleteCharAt(errorMsg.length()-1);
+                    errorMsgList.add(errorNumMsg + errorMsg);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        return collection;
     }
 
     /**
@@ -300,8 +304,9 @@ public class ExcelImportService {
             }
         }
         if (!verifyResult) {
-            importResult.setVerfiyFail(true);
-            importResult.getVerifyMsg().put(1, "Excel导入模板错误");
+            List<String> errorMsgList = new ArrayList<>();
+            errorMsgList.add("Excel导入模板错误");
+            importResult.setVerifyMsg(errorMsgList);
         }
         return verifyResult;
     }
