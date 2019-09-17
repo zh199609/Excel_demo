@@ -8,7 +8,7 @@ import org.apache.poi.xssf.usermodel.XSSFColor;
 
 /**
  * @ClassName: ExportParams
- * @Description:  目前仅支持单sheet，导出参数设置
+ * @Description: 目前仅支持单sheet，导出参数设置
  * @Author: zl
  * @Date: 2019/8/1 21:29
  * @Version: 1.0
@@ -54,10 +54,13 @@ public class ExportParams {
     public short height = 0;
 
     /**
-     * 是否固定表头
+     * 是否固定标题
      */
     private boolean isFixedTitle = true;
-
+    /**
+     * 是否固定表头
+     */
+    private boolean isFiexdHead = true;
     /**
      * 表头
      */
@@ -174,4 +177,11 @@ public class ExportParams {
         this.style = style;
     }
 
+    public boolean isFiexdHead() {
+        return isFiexdHead;
+    }
+
+    public void setFiexdHead(boolean fiexdHead) {
+        isFiexdHead = fiexdHead;
+    }
 }

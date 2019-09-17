@@ -333,16 +333,19 @@ public class ExcelExportService {
     protected int createHeaderAndTitle(ExportParams entity, Sheet sheet, Workbook workbook,
                                        List<ExcelExportEntity> excelParams) {
         int rows = 0, fieldLength = getFieldLength(excelParams);
-        CellStyle titleStyle = getExcelExportStyler().getTitleStyle(entity.getTitleColor());
-
         if (entity.getTitle() != null) {
             rows += createTitle2Row(entity, sheet, workbook, fieldLength);
+            //标题的固定
+            if (entity.isFixedTitle()) {
+                sheet.createFreezePane(0, rows, 0, rows);
+            }
         }
         createHeaderRow(entity, sheet, workbook, rows, excelParams, 0);
-
-        if (entity.isFixedTitle()) {
-            sheet.createFreezePane(0, rows, 0, rows);
+        //表头的固定
+        if (entity.isFiexdHead()) {
+            sheet.createFreezePane(0, rows + 1, 0, rows + 1);
         }
+
         return rows;
     }
 
