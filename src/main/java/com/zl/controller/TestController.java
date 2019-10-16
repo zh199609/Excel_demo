@@ -50,7 +50,7 @@ public class TestController {
     public String test(HttpServletResponse response, HttpServletRequest request) {
         List<User> list = new ArrayList<>();
         Random random = new Random();
-        for (int i = 1; i < 3; i++) {
+        for (int i = 1; i < 20000; i++) {
             User user = new User(i, "用户" + i + "号");
             user.setStatus(i % 2 == 0 ? Status.VALID : Status.INVALID);
             Date date = new Date();

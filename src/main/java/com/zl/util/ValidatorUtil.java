@@ -1,8 +1,6 @@
 package com.zl.util;
 
-import com.zl.entity.Status;
 import com.zl.entity.User;
-import com.zl.enums.ExcelType;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;

@@ -13,7 +13,7 @@ import java.util.Map;
 public class ConcurrentDateUtil {
 
     public static final String YMD = "yyyy-MM-dd";
-    public static final String YMDHMS = "yyyy-MM-dd HH:mm:ss";
+    public static final String YMDHMS = "yyyy-MM-dd HH:mm";
 
     private static ThreadLocal<Map<String, DateFormat>> formatThreadLocal = new ThreadLocal<>();
     private static ThreadLocal<String> formatStrThreadLocal = new ThreadLocal<>();
@@ -48,6 +48,13 @@ public class ConcurrentDateUtil {
 
     public static Date parseDateStr(String strDate, String formatStr) throws ParseException {
         return getDateFormat(formatStr).parse(strDate);
+    }
+
+
+    public static void main(String[] args) throws ParseException {
+        String strDate ="2019-09-25 9:30";
+        Date date = parseDateStr(strDate, YMDHMS);
+        System.out.println(date.toString());
     }
 
 }
