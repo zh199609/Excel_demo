@@ -81,8 +81,6 @@ public class ExcelUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
 
     private static void downLoad(Workbook workbook, HttpServletResponse response) throws IOException {

@@ -2,13 +2,9 @@ package com.zl.excel;
 
 import com.zl.entity.ExportEntity;
 import com.zl.entity.Status;
-import com.zl.excel.ExcelExportUtil;
-import com.zl.excel.ExportParams;
 import com.zl.excel.style.ExcelExportStylerCustomImpl;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.modules.junit4.PowerMockRunner;
+
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -26,7 +22,7 @@ import java.util.Random;
  */
 public class ExcelExportUtilTest {
 
-    @Test
+
     public void testExportExcel() {
         System.out.println("开跑");
         Random random = new Random();

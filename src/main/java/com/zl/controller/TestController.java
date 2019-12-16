@@ -37,6 +37,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 @Controller
@@ -183,4 +184,17 @@ public class TestController {
         return user;
     }
 
+    @RequestMapping(value = "/test1")
+    @ResponseBody
+    public Object test1(@RequestParam("key") String param) {
+        return param;
+    }
+
+
+    @RequestMapping(value = "/test2")
+    @ResponseBody
+    public User test2(@RequestBody User user) {
+        System.out.println(user);
+        return user;
+    }
 }
