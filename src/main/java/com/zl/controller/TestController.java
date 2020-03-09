@@ -1,5 +1,7 @@
 package com.zl.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zl.entity.Status;
 import com.zl.entity.User;
 import com.zl.excel.ExcelExportUtil;
@@ -9,6 +11,8 @@ import com.zl.excel.ImportParams;
 import com.zl.excel.ImportResult;
 import com.zl.excel.style.ExcelExportStylerCustomImpl;
 import com.zl.util.PoiMergeCellUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
@@ -20,12 +24,9 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -41,9 +42,28 @@ import java.util.Objects;
 import java.util.Random;
 
 @Controller
+@Api(tags = "用户管理相关接口")
 public class TestController {
 
     private static final Logger logger = LoggerFactory.getLogger(TestController.class);
+
+    @Autowired
+    private ObjectMapper mapper;
+
+    @PostMapping(value = "/apiTest")
+    @ApiOperation("user新增")
+    @ResponseBody
+    public Response aipTest(@RequestBody User user) {
+        Response response = new Response();
+        response.setCode("0000");
+        response.setMessage("Success");
+        try {
+            response.setData(mapper.writeValueAsString(user));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return response;
+    }
 
 
     @GetMapping(value = "/test")
