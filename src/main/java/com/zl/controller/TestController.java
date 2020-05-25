@@ -5,20 +5,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zl.entity.Status;
 import com.zl.entity.User;
 import com.zl.excel.ExcelExportUtil;
-import com.zl.excel.ExcelImportUtil;
 import com.zl.excel.ExportParams;
 import com.zl.excel.ImportParams;
 import com.zl.excel.ImportResult;
 import com.zl.excel.style.ExcelExportStylerCustomImpl;
+import com.zl.service.ExcelImportService;
 import com.zl.util.PoiMergeCellUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.poi.ss.usermodel.BorderStyle;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -38,7 +34,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.Random;
 
 @Controller
@@ -165,6 +160,10 @@ public class TestController {
         return "Success";
     }
 
+
+    @Autowired
+    private ExcelImportService excelImportService;
+
     @RequestMapping(value = "/excelUpload")
     @ResponseBody
     public String excelTest(@RequestParam("uploadFile") MultipartFile file) {
@@ -172,10 +171,10 @@ public class TestController {
             InputStream inputStream = file.getInputStream();
             ImportParams importParams = new ImportParams();
             importParams.setExcelVerifyHandler(new VerifyHandler());
-            ImportResult<User> objectImportResult = ExcelImportUtil.importExcel(inputStream, User.class, importParams);
+            ImportResult<User> objectImportResult = excelImportService.importExcelBase(inputStream, User.class, importParams);
             if (CollectionUtils.isNotEmpty(objectImportResult.getList())) {
                 System.out.println("数据：" + objectImportResult.getList().size());
-                System.out.println(objectImportResult.getList());
+//                System.out.println(objectImportResult.getList());
             }
             System.out.println("错误：" + objectImportResult.getVerifyMsg());
         } catch (IOException e) {
@@ -184,7 +183,7 @@ public class TestController {
         return "Success";
     }
 
-    @RequestMapping(value = "/`showHtml`")
+    @RequestMapping(value = "/showHtml")
     public String show() {
         return "show";
     }

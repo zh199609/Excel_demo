@@ -12,14 +12,11 @@ import com.zl.util.PublicUtils;
 import com.zl.util.ValidatorUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.formula.functions.T;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -30,21 +27,19 @@ import java.util.*;
 /**
  * 导入服务
  */
+@Service
 public class ExcelImportService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExcelImportService.class);
 
+    @Autowired
     private CellValueService cellValueService;
 
-    public ExcelImportService() {
-        this.cellValueService = new CellValueService();
-    }
 
     public ImportResult importExcelBase(InputStream inputStream, Class<?> clazz, ImportParams importParams) {
         LOGGER.debug("Excel import start,ClassType is {}", clazz);
-        List<T> list = new ArrayList<>();
         ByteArrayOutputStream arrayOut = new ByteArrayOutputStream();
-        ImportResult importResult = new ImportResult();
+        ImportResult importResult = null;
         try {
             byte[] bytes = new byte[1024];
             int len = 0;
@@ -62,28 +57,26 @@ public class ExcelImportService {
             if (sheet == null) {
                 throw new RuntimeException("所对应的Sheet不存在");
             }
-            //参数list并没用使用   importResult的list属性存放读取正确的数据
-            importExcel(list, sheet, importParams, clazz, importResult);
-            //标记本次导入存在错误
-            if (CollectionUtils.isNotEmpty(importResult.getVerifyMsg())) {
-                importResult.setVerfiyFail(true);
-            }
+            //importResult的list属性存放读取正确的数据
+            importResult = importExcel(sheet, importParams, clazz);
             long endTime = System.currentTimeMillis();
             LOGGER.debug("excel读取耗时：" + (endTime - startTime) + "毫秒");
         } catch (Exception e) {
+            LOGGER.error("importExcelBase Exception occurred:{}", e.getMessage(), e);
             e.printStackTrace();
         }
         return importResult;
     }
 
 
-    public <T> void importExcel(Collection<T> result, Sheet sheet, ImportParams importParams, Class<?> pojoClass, ImportResult importResult) {
+    public ImportResult importExcel(Sheet sheet, ImportParams importParams, Class<?> pojoClass) {
+        ImportResult result = new ImportResult<>();
         Field[] classFields = PublicUtils.getClassFields(pojoClass);
-        Map<String, ExcelImportEntity> excelParams = new HashMap<>();
         //获取导入字段
-        getImportField(classFields, excelParams, pojoClass);
+        Map<String, ExcelImportEntity> excelParams = getAllExcelField(classFields, pojoClass);
         //导入的数据行数
         int lastRowNum = sheet.getLastRowNum();
+
         Iterator<Row> rowIterator = sheet.rowIterator();
         //跳过title和head的行
         for (int i = 0; i <= importParams.getTitleRow(); i++) {
@@ -91,9 +84,9 @@ public class ExcelImportService {
         }
         Map<Integer, String> titleMap = getTitleMap(rowIterator, importParams, excelParams);
         //模板校验错误直接返回
-        boolean titleVerify = verifyExcelTemplate(importParams, titleMap, excelParams, importResult);
+        boolean titleVerify = verifyExcelTemplate(importParams, titleMap, excelParams, result);
         if (!titleVerify) {
-            return;
+            return result;
         }
         //从数据行开始读取  跳过无效的行数
         for (int i = importParams.getHeadRow(); i < importParams.getDataRow() - 1; i++) {
@@ -102,7 +95,8 @@ public class ExcelImportService {
         //数据开始读取
         Row row;
         List<String> errorMsgList = new ArrayList<>();
-        List dataList = new ArrayList<>();
+        List errorDataList = new ArrayList<>();
+        List dataList = new ArrayList<>(lastRowNum);
         while (rowIterator.hasNext()) {
             row = rowIterator.next();
             //跳出循环
@@ -124,14 +118,23 @@ public class ExcelImportService {
                 if (StringUtils.isBlank(errorMsg) && verifyData(object, row, importParams, errorMsg)) {
                     dataList.add(object);
                 } else {
+                    errorDataList.add(object);
                     String errorNumMsg = "第" + (row.getRowNum() + 1) + "行数据：";
-                    errorMsg.deleteCharAt(errorMsg.length()-1);
+                    errorMsg.deleteCharAt(errorMsg.length() - 1);
                     errorMsgList.add(errorNumMsg + errorMsg);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.error("importExcel Exception occurred:{}", e.getMessage(), e);
             }
         }
+        //错误数据返回
+        if (CollectionUtils.isNotEmpty(errorMsgList)) {
+            result.setVerfiyFail(true);
+            result.setVerifyMsg(errorMsgList);
+            result.setFailList(errorDataList);
+        }
+        result.setList(dataList);
+        return result;
     }
 
     /**
@@ -184,16 +187,11 @@ public class ExcelImportService {
      * 〈获取需要导入的字段〉
      *
      * @param fields
-     * @param importEntitys
      * @param pojoClass
      * @return : void
      */
-    public void getImportField(Field[] fields, Map<String, ExcelImportEntity> importEntitys, Class<?> pojoClass) {
-        getAllExcelField(fields, importEntitys, pojoClass);
-    }
-
-
-    public void getAllExcelField(Field[] fields, Map<String, ExcelImportEntity> importEntityMap, Class<?> pojoClass) {
+    public Map<String, ExcelImportEntity> getAllExcelField(Field[] fields, Class<?> pojoClass) {
+        Map<String, ExcelImportEntity> importEntityMap = new HashMap<>();
         for (int i = 0; i < fields.length; i++) {
             Field field = fields[i];
             Excel annotation = field.getAnnotation(Excel.class);
@@ -208,6 +206,7 @@ public class ExcelImportService {
                 LOGGER.debug("{} Class Type Import Is Not Supported", field.getName());
             }
         }
+        return importEntityMap;
     }
 
     /**

@@ -38,6 +38,8 @@ public class ImportResult<T> {
      */
     private List<String> verifyMsg;
 
+    public ImportResult() {
+    }
 
     public List<T> getList() {
         return list;

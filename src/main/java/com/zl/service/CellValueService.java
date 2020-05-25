@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -26,6 +27,7 @@ import java.util.Map;
  * @Date: 2019/8/28 20:56
  * @Version: 1.0
  **/
+@Service
 public class CellValueService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CellValueService.class);
