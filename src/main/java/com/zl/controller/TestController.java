@@ -168,8 +168,6 @@ public class TestController {
     @RequestMapping(value = "/excelUpload")
     @ResponseBody
     public String excelTest(@RequestParam("uploadFile") MultipartFile file) {
-
-
         try {
             InputStream inputStream = file.getInputStream();
             ImportParams importParams = new ImportParams();
@@ -186,7 +184,7 @@ public class TestController {
         return "Success";
     }
 
-    @RequestMapping(value = "/showHtml")
+    @RequestMapping(value = "/`showHtml`")
     public String show() {
         return "show";
     }
