@@ -3,6 +3,7 @@ package com.zl.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zl.entity.Status;
+import com.zl.entity.Test;
 import com.zl.entity.User;
 import com.zl.excel.ExcelExportUtil;
 import com.zl.excel.ExportParams;
@@ -14,7 +15,11 @@ import com.zl.util.PoiMergeCellUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -22,7 +27,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -66,7 +76,7 @@ public class TestController {
     public String test(HttpServletResponse response, HttpServletRequest request) {
         List<User> list = new ArrayList<>();
         Random random = new Random();
-        for (int i = 1; i < 20000; i++) {
+        for (int i = 1; i < 1; i++) {
             User user = new User(i, "用户" + i + "号");
             user.setStatus(i % 2 == 0 ? Status.VALID : Status.INVALID);
             Date date = new Date();
@@ -85,10 +95,22 @@ public class TestController {
             list.add(user);
         }
 
+        ArrayList<Test> list1 = new ArrayList<>();
+        for (int i = 0; i < 100000; i++) {
+            String s = String.valueOf(i);
+            Test test = new Test();
+            test.setName(s);
+            test.setA(s);
+            test.setB(s);
+            test.setC(s);
+            test.setD(s);
+            list1.add(test);
+        }
+
         long start = System.currentTimeMillis();
         ExportParams exportParams = new ExportParams("计算机一班", "名单");
         exportParams.setStyle(ExcelExportStylerCustomImpl.class);
-        Workbook workbook = ExcelExportUtil.exportExcel(exportParams, User.class, list);
+        Workbook workbook = ExcelExportUtil.exportExcel(exportParams, Test.class, list1);
         long end = System.currentTimeMillis();
         System.out.println("解析时间：" + (end - start) + "毫秒");
 
@@ -171,9 +193,9 @@ public class TestController {
             InputStream inputStream = file.getInputStream();
             ImportParams importParams = new ImportParams();
             importParams.setExcelVerifyHandler(new VerifyHandler());
-            ImportResult<User> objectImportResult = excelImportService.importExcelBase(inputStream, User.class, importParams);
+            ImportResult<Test> objectImportResult = excelImportService.importExcelBase(inputStream, Test.class, importParams);
             if (CollectionUtils.isNotEmpty(objectImportResult.getList())) {
-                System.out.println("数据：" + objectImportResult.getList().size());
+//                System.out.println("数据：" + objectImportResult.getList().size());
 //                System.out.println(objectImportResult.getList());
             }
             System.out.println("错误：" + objectImportResult.getVerifyMsg());
